@@ -4,6 +4,10 @@ import java.util.List;
 
 public class Board {
 
+    public static final int CASE_VIDE = 0;
+    public static final int PION_NOIR = 2;
+    public static final int PION_BLANC = 4;
+
     public Board(int[][] board) {
         valeur = calculerValeur(board);
     }
