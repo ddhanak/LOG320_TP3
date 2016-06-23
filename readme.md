@@ -1,4 +1,4 @@
-# TP3
+# TP3 : Jeu de plateau
 ## Ce travail a été réalisé par :
 * Walid Bezaoui
 * Deep Dhanak
