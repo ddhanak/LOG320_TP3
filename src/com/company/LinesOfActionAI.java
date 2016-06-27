@@ -18,7 +18,7 @@ public class LinesOfActionAI {
         Board meilleurBoard = null;
         int meilleurVal = -Integer.MAX_VALUE;
 
-        for (Board enfant : board.getBoardsEnfants()) {
+        for (Board enfant : board.getBoardsEnfants(Board.PION_BLANC)) {
             Board boardEnfant = alphaBeta(enfant, -b, -a, niveau+1);
             int val = -boardEnfant.valeur;
 
