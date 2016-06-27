@@ -41,6 +41,7 @@ class Client {
                             y++;
                         }
                     }
+                    Board myBoard = new Board(board);
 
                     System.out.println("Nouvelle partie! Vous jouer blanc, entrez votre premier coup : ");
                     String move = null;
