@@ -1,7 +1,10 @@
 package com.company.test;
 
 import com.company.Board;
+import com.company.Coup;
 import org.junit.Test;
+
+import java.util.List;
 
 import static junit.framework.TestCase.assertEquals;
 
@@ -61,6 +64,18 @@ public class BoardTest {
         // Assert
         assertEquals(0, nbPionsDiagonale1);
         assertEquals(2, nbPionsDiagonale2);
+    }
+
+    @Test
+    public void getCoupsPossibles() {
+        // Arrange
+        Board board = new Board(boardDepart);
+
+        // Act
+        List<Coup> coupsPossibles = board.getCoupsPossibles(Board.PION_BLANC);
+
+        // Assert
+        assertEquals(4, coupsPossibles.size());
     }
 
 

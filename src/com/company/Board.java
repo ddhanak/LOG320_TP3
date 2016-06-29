@@ -1,5 +1,6 @@
 package com.company;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Board {
@@ -13,13 +14,64 @@ public class Board {
         valeur = calculerValeur(PION_BLANC); // hardcodé blanc pour l'instant
     }
 
-    public List<Board> getBoardsEnfants(int pionAmi) {
+    /**
+     * Optimisation possible en calculant une seule fois le nombre de pions par ligne/colonnes
+     * @param couleurPions
+     * @return
+     */
+    public List<Board> getBoardsEnfants(int couleurPions) {
+        /*List<Coup> coupsPossibles = getCoupsPossibles(couleurPions);
+        List<Board> boardsEnfants = new ArrayList<>();*/
+
+
+
+        return null;
+    }
+
+    /**
+     * Générateur de mouvements.
+     * @param couleurPions couleur des pions de l'équipe pour laquelle générer les coups
+     * @return une liste de coup possibles.
+     */
+    public List<Coup> getCoupsPossibles(int couleurPions) {
+        List<Coup> coupsPossibles = new ArrayList<>();
+
         for (int x = 0; x != _board.length; x++) {
             for (int y = 0; y != _board.length; y++) {
-                if (_board[x][y] == pionAmi) {
+                if (_board[x][y] == couleurPions) {
                     // Ligne verticale
                     int nbPionsLigneVerticale = getNbPionsLigneVerticale(y);
+                    for (int i = 1; i <= nbPionsLigneVerticale; i++) {
+                        int xPlus = x + i;
+                        if (xPlus < _board.length) {
+                            int positionExploree = _board[xPlus][y];
+                            boolean estPionAdverse = positionExploree != couleurPions && positionExploree != CASE_VIDE;
 
+                            if (i != nbPionsLigneVerticale && estPionAdverse)
+                                break;
+
+                            if (i == nbPionsLigneVerticale) {
+                                if (positionExploree == CASE_VIDE || estPionAdverse)
+                                    coupsPossibles.add(new Coup(new Position(x, y), new Position(xPlus, y)));
+                            }
+                        }
+                    }
+                    for (int i = 1; i <= nbPionsLigneVerticale; i++) {
+                        int xMoins = x - i;
+                        if (xMoins >= 0) {
+                            int positionExploree = _board[xMoins][y];
+                            boolean estPionAdverse = positionExploree != couleurPions && positionExploree != CASE_VIDE;
+
+                            if (i != nbPionsLigneVerticale && estPionAdverse)
+                                break;
+
+                            if (i == nbPionsLigneVerticale) {
+                                if (positionExploree == CASE_VIDE || estPionAdverse)
+                                    coupsPossibles.add(new Coup(new Position(x, y), new Position(xMoins, y)));
+                            }
+                        }
+                    }
+/*
                     // Ligne horizontale
                     int nbPionsLigneHorizontale = getNbPionsLigneHorizontale(x);
 
@@ -27,12 +79,12 @@ public class Board {
                     int nbPionsLigneDiagonale1 = getNbPionsLigneDiagonaleNegative(x, y);
 
                     // Ligne diagonale 2
-                    int nbPionsLigneDiagonale2 = getNbPionsLigneDiagonalePositive(x, y);
+                    int nbPionsLigneDiagonale2 = getNbPionsLigneDiagonalePositive(x, y);*/
                 }
             }
         }
 
-        return null;
+        return coupsPossibles;
     }
 
     public int getNbPionsLigneDiagonalePositive(int x, int y) {
