@@ -9,4 +9,20 @@ public class Position {
 
     public int x;
     public int y;
+
+    @Override
+    public String toString() {
+        return "" + lettres[y] + x;
+    }
+
+    private char[] lettres = {
+            'A',
+            'B',
+            'C',
+            'D',
+            'E',
+            'F',
+            'G',
+            'H'
+    };
 }

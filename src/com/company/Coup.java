@@ -10,20 +10,9 @@ public class Coup {
     public Position depart;
     public Position arrivee;
 
-    // Il faudra vérifier comment le board est construit pour savoir comment faire la string
+    // *IMPORTANT : il faudra vérifier comment le board est construit pour savoir comment faire la string
     @Override
     public String toString() {
-        return "";
+        return depart.toString() + arrivee.toString();
     }
-
-    private char[] lettres = {
-            'A',
-            'B',
-            'C',
-            'D',
-            'E',
-            'F',
-            'G',
-            'H'
-    };
 }

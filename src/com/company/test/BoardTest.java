@@ -69,14 +69,26 @@ public class BoardTest {
     @Test
     public void getCoupsPossibles() {
         // Arrange
-        Board board = new Board(boardDepart);
+        Board board = new Board(board2);
 
         // Act
-        List<Coup> coupsPossibles = board.getCoupsPossibles(Board.PION_BLANC);
+        List<Coup> coupsPossiblesBlancs = board.getCoupsPossibles(Board.PION_BLANC);
+        List<Coup> coupsPossiblesNoirs = board.getCoupsPossibles(Board.PION_NOIR);
 
         // Assert
-        assertEquals(4, coupsPossibles.size());
+        assertEquals(12, coupsPossiblesBlancs.size());
+        assertEquals(12, coupsPossiblesNoirs.size());
     }
+
+    public static int[][] board2 = new int[][] {
+            {0,2,2,2,2,2,2,0},
+            {4,0,0,4,4,0,0,4},
+            {4,0,0,0,0,0,0,4},
+            {4,2,0,0,0,0,2,4},
+            {4,2,0,0,0,0,2,4},
+            {4,0,0,0,0,0,0,4},
+            {4,0,0,4,4,0,0,4},
+            {0,2,2,2,2,2,2,0}};
 
 
     public static int[][] boardDepart = new int[][] {
