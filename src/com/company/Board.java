@@ -9,10 +9,59 @@ public class Board {
     public static final int PION_NOIR = 2;
     public static final int PION_BLANC = 4;
 
+    private static final int PROFONDEUR_MAX = 5;
+
     public Board(int[][] board, Coup dernierCoupJoue) {
         _board = board;
         _dernierCoupJoue = dernierCoupJoue;
-        valeur = calculerValeur(PION_BLANC); // hardcodé blanc pour l'instant
+    }
+
+    public Coup getProchainCoup(int couleurEquipe) {
+        return getBoardApresProchainCoup(couleurEquipe).getDernierCoupJoue();
+    }
+
+    public Board getBoardApresProchainCoup(int couleurEquipe) {
+        return alphaBeta(this, Integer.MIN_VALUE, Integer.MAX_VALUE, 0, couleurEquipe);
+    }
+
+    /**
+     * NegaMax avec Alpha Beta. NegaMax est une simplification de MiniMax
+     * Inspiré du pseudo code ici : https://fr.wikipedia.org/wiki/%C3%89lagage_alpha-b%C3%AAta
+     * @param board
+     * @param a
+     * @param b
+     * @return
+     */
+    public static Board alphaBeta(Board board, int a, int b, int niveau, int couleurEquipe) {
+        if (niveau == PROFONDEUR_MAX) return board;
+
+        int meilleurVal = -Integer.MAX_VALUE;
+        Board meilleurBoard = null;
+        // Sert seulement pour la racine pour pas tenter de faire un coup plus profond dans l'arbre
+        Board parentMeilleurBoard = null;
+
+        for (Board enfant : board.getBoardsEnfants(couleurEquipe)) {
+            // Si board est gagnant
+            if (niveau == 0 && enfant.calculerValeur(couleurEquipe) > 1000)
+                return enfant;
+
+            Board boardEnfant = alphaBeta(enfant, -b, -a, niveau+1, couleurEquipe);
+            int val = -boardEnfant.calculerValeur(couleurEquipe);
+
+            if (val > meilleurVal) {
+                meilleurVal = val;
+                meilleurBoard = boardEnfant;
+                parentMeilleurBoard = enfant;
+                if (meilleurVal > a) {
+                    a = meilleurVal;
+                    if (a >= b) {
+                        return meilleurBoard;
+                    }
+                }
+            }
+        }
+
+        return (niveau != 0) ? meilleurBoard : parentMeilleurBoard;
     }
 
     /**
@@ -273,16 +322,71 @@ public class Board {
     }
 
     public int calculerValeur(int pionAmi) {
-        // ça serait peut-être intéressant de de calculer l'espace totale entre
-        // nos pions
-        return 0;
+        int nbPionsAmis = 0;
+        int nbPionsEnnemis = 0;
+        int nbPionsAmisIsoles = 0;
+        int nbPionsEnnemisIsoles = 0;
+
+        for (int x = 0; x != _board.length; x++) {
+            for (int y = 0; y != _board.length; y++) {
+                if (_board[x][y] == pionAmi) {
+                    nbPionsAmis++;
+                    if (pionEstIsole(x, y))
+                        nbPionsAmisIsoles++;
+                }
+                else if (_board[x][y] != CASE_VIDE) { // Ennemi
+                    nbPionsEnnemis++;
+                    if (pionEstIsole(x, y))
+                        nbPionsEnnemisIsoles++;
+                }
+            }
+        }
+
+        int valeurAmi = 0;
+        int valeurEnnemi = 0;
+
+        valeurAmi = (nbPionsAmis > 1 && nbPionsAmisIsoles > 0) ? 1000 - nbPionsAmisIsoles : 5000; // Victoire ami
+        valeurEnnemi = (nbPionsEnnemis > 1 && nbPionsEnnemisIsoles > 0) ? 1000 - nbPionsEnnemisIsoles : 5000; // Victoire ennemi
+
+        return valeurAmi - valeurEnnemi;
+    }
+
+    public boolean pionEstIsole(int x, int y) {
+        int couleurPion = _board[x][y];
+
+        if (couleurPion == CASE_VIDE)
+            return false;
+
+        if (y + 1 < _board.length && _board[x][y + 1] == couleurPion)
+            return false;
+
+        if (x + 1 < _board.length && _board[x + 1][y] == couleurPion)
+            return false;
+
+        if (y - 1 >= 0 && _board[x][y - 1] == couleurPion)
+            return false;
+
+        if (x - 1 >= 0 && _board[x - 1][y] == couleurPion)
+            return false;
+
+        if (x + 1 < _board.length && y + 1 < _board.length && _board[x + 1][y + 1] == couleurPion)
+            return false;
+
+        if (x + 1 < _board.length && y - 1 >= 0 && _board[x + 1][y - 1] == couleurPion)
+            return false;
+
+        if (x - 1 >= 0 && y + 1 < _board.length && _board[x - 1][y + 1] == couleurPion)
+            return false;
+
+        if (x - 1 >= 0 && y - 1 >= 0 && _board[x - 1][y - 1] == couleurPion)
+            return false;
+
+        return true;
     }
 
     public Coup getDernierCoupJoue() {
         return _dernierCoupJoue;
     }
-
-    public int valeur;
 
     private int[][] _board;
 

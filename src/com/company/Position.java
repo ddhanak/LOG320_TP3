@@ -12,7 +12,7 @@ public class Position {
 
     @Override
     public String toString() {
-        return "" + lettres[y] + (x+1);
+        return "" + lettres[y] + (8 - x);
     }
 
     private char[] lettres = {
