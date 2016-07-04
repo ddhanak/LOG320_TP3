@@ -7,13 +7,14 @@ import org.junit.Test;
 import java.util.List;
 
 import static junit.framework.TestCase.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class BoardTest {
 
     @Test
     public void getNbPionsLigneVerticale() {
         // Arrange
-        Board board = new Board(boardDepart);
+        Board board = new Board(boardDepart, null);
 
         // Act
         int nbPionsColonne1 = board.getNbPionsLigneVerticale(0);
@@ -27,7 +28,7 @@ public class BoardTest {
     @Test
     public void getNbPionsLigneHorizontale() {
         // Arrange
-        Board board = new Board(boardDepart);
+        Board board = new Board(boardDepart, null);
 
         // Act
         int nbPionsLigne1 = board.getNbPionsLigneHorizontale(0);
@@ -41,7 +42,7 @@ public class BoardTest {
     @Test
     public void getNbPionsLigneDiagonaleNegative() {
         // Arrange
-        Board board = new Board(boardDepart);
+        Board board = new Board(boardDepart, null);
 
         // Act
         int nbPionsDiagonale1 = board.getNbPionsLigneDiagonaleNegative(3, 3);
@@ -55,7 +56,7 @@ public class BoardTest {
     @Test
     public void getNbPionsLigneDiagonalePositive() {
         // Arrange
-        Board board = new Board(boardDepart);
+        Board board = new Board(boardDepart, null);
 
         // Act
         int nbPionsDiagonale1 = board.getNbPionsLigneDiagonalePositive(3, 4);
@@ -69,18 +70,38 @@ public class BoardTest {
     @Test
     public void getCoupsPossibles() {
         // Arrange
-        Board board = new Board(board2);
+        Board board = new Board(board2, null);
 
         // Act
         List<Coup> coupsPossiblesBlancs = board.getCoupsPossibles(Board.PION_BLANC);
         List<Coup> coupsPossiblesNoirs = board.getCoupsPossibles(Board.PION_NOIR);
 
         // Assert
-        assertEquals(12, coupsPossiblesBlancs.size());
-        assertEquals(12, coupsPossiblesNoirs.size());
+        assertEquals(24, coupsPossiblesBlancs.size());
+        assertEquals(24, coupsPossiblesNoirs.size());
     }
 
-    public static int[][] board2 = new int[][] {
+    @Test
+    public void getBoardsEnfants() {
+        // Arrange
+        Board board = new Board(board2, null);
+
+        // Act
+        List<Board> boardsEnfantsBlancs = board.getBoardsEnfants(Board.PION_BLANC);
+        List<Board> boardsEnfantsNoirs = board.getBoardsEnfants(Board.PION_NOIR);
+
+        // Assert
+        assertEquals(24, boardsEnfantsBlancs.size());
+        assertEquals(24, boardsEnfantsNoirs.size());
+
+        for (Board boardEnfantBlanc : boardsEnfantsBlancs)
+            assertTrue(boardEnfantBlanc.getDernierCoupJoue() != null);
+
+        for (Board boardEnfantNoir : boardsEnfantsNoirs)
+            assertTrue(boardEnfantNoir.getDernierCoupJoue() != null);
+    }
+
+    private static int[][] board2 = new int[][] {
             {0,2,2,2,2,2,2,0},
             {4,0,0,4,4,0,0,4},
             {4,0,0,0,0,0,0,4},
@@ -91,7 +112,7 @@ public class BoardTest {
             {0,2,2,2,2,2,2,0}};
 
 
-    public static int[][] boardDepart = new int[][] {
+    private static int[][] boardDepart = new int[][] {
             {0,2,2,2,2,2,2,0},
             {4,0,0,0,0,0,0,4},
             {4,0,0,0,0,0,0,4},

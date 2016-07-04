@@ -42,7 +42,7 @@ public class Main {
                         }
                     }
 
-                    myBoard = new Board(board);
+                    myBoard = new Board(board, null);
                     System.out.println("Nouvelle partie! Vous jouer blanc, entrez votre premier coup : ");
                     String move = null;
                     move = console.readLine();
@@ -70,7 +70,7 @@ public class Main {
                             y++;
                         }
                     }
-                    myBoard = new Board(board);
+                    myBoard = new Board(board, null);
                 }
 
 

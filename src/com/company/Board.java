@@ -9,8 +9,9 @@ public class Board {
     public static final int PION_NOIR = 2;
     public static final int PION_BLANC = 4;
 
-    public Board(int[][] board) {
+    public Board(int[][] board, Coup dernierCoupJoue) {
         _board = board;
+        _dernierCoupJoue = dernierCoupJoue;
         valeur = calculerValeur(PION_BLANC); // hardcodé blanc pour l'instant
     }
 
@@ -20,12 +21,31 @@ public class Board {
      * @return
      */
     public List<Board> getBoardsEnfants(int couleurPions) {
-        /*List<Coup> coupsPossibles = getCoupsPossibles(couleurPions);
-        List<Board> boardsEnfants = new ArrayList<>();*/
+        List<Coup> coupsPossibles = getCoupsPossibles(couleurPions);
+        List<Board> boardsEnfants = new ArrayList<>();
 
+        for (Coup coup : coupsPossibles) {
+            int[][] boardEnfant = new int[8][8];
+            int xDepart = coup.depart.x;
+            int yDepart = coup.depart.y;
+            int xArrivee = coup.arrivee.x;
+            int yArrivee = coup.arrivee.y;
 
+            for (int x = 0; x < _board.length; x++) {
+                for (int y = 0; y < _board.length; y++) {
+                    if (x == xDepart && y == yDepart)
+                        boardEnfant[x][y] = CASE_VIDE;
+                    else if (x == xArrivee && y == yArrivee)
+                        boardEnfant[x][y] = couleurPions;
+                    else
+                        boardEnfant[x][y] = _board[x][y];
+                }
+            }
 
-        return null;
+            boardsEnfants.add(new Board(boardEnfant, coup));
+        }
+
+        return boardsEnfants;
     }
 
     /**
@@ -45,9 +65,7 @@ public class Board {
 
                     getCoupsLigneDiagonaleNegative(couleurPions, coupsPossibles, x, y);
 
-                    /*
-                    // Ligne diagonale 2
-                    int nbPionsLigneDiagonale2 = getNbPionsLigneDiagonalePositive(x, y);*/
+                    getCoupsLigneDiagonalePositive(couleurPions, coupsPossibles, x, y);
                 }
             }
         }
@@ -125,8 +143,75 @@ public class Board {
 
     private void getCoupsLigneDiagonaleNegative(int couleurPions, List<Coup> coupsPossibles, int x, int y) {
         int nbPionsLigne = getNbPionsLigneDiagonaleNegative(x, y);
+        for (int i = 1; i <= nbPionsLigne; i++) {
+            int yPlus = y + i;
+            int xPlus = x + i;
+            if (yPlus < _board.length && xPlus < _board.length) {
+                int positionExploree = _board[xPlus][yPlus];
+                boolean estPionAdverse = positionExploree != couleurPions && positionExploree != CASE_VIDE;
 
+                if (i != nbPionsLigne && estPionAdverse)
+                    break;
 
+                if (i == nbPionsLigne) {
+                    if (positionExploree == CASE_VIDE || estPionAdverse)
+                        coupsPossibles.add(new Coup(new Position(x, y), new Position(xPlus, yPlus)));
+                }
+            }
+        }
+        for (int i = 1; i <= nbPionsLigne; i++) {
+            int yMoins = y - i;
+            int xMoins = x - i;
+            if (yMoins >= 0 && xMoins >= 0) {
+                int positionExploree = _board[xMoins][yMoins];
+                boolean estPionAdverse = positionExploree != couleurPions && positionExploree != CASE_VIDE;
+
+                if (i != nbPionsLigne && estPionAdverse)
+                    break;
+
+                if (i == nbPionsLigne) {
+                    if (positionExploree == CASE_VIDE || estPionAdverse)
+                        coupsPossibles.add(new Coup(new Position(x, y), new Position(xMoins, yMoins)));
+                }
+            }
+        }
+
+    }
+
+    private void getCoupsLigneDiagonalePositive(int couleurPions, List<Coup> coupsPossibles, int x, int y) {
+        int nbPionsLigne = getNbPionsLigneDiagonalePositive(x, y);
+        for (int i = 1; i <= nbPionsLigne; i++) {
+            int yPlus = y + i;
+            int xMoins = x - i;
+            if (yPlus < _board.length && xMoins >= 0) {
+                int positionExploree = _board[xMoins][yPlus];
+                boolean estPionAdverse = positionExploree != couleurPions && positionExploree != CASE_VIDE;
+
+                if (i != nbPionsLigne && estPionAdverse)
+                    break;
+
+                if (i == nbPionsLigne) {
+                    if (positionExploree == CASE_VIDE || estPionAdverse)
+                        coupsPossibles.add(new Coup(new Position(x, y), new Position(xMoins, yPlus)));
+                }
+            }
+        }
+        for (int i = 1; i <= nbPionsLigne; i++) {
+            int yMoins = y - i;
+            int xPlus = x + i;
+            if (yMoins >= 0 && xPlus < _board.length) {
+                int positionExploree = _board[xPlus][yMoins];
+                boolean estPionAdverse = positionExploree != couleurPions && positionExploree != CASE_VIDE;
+
+                if (i != nbPionsLigne && estPionAdverse)
+                    break;
+
+                if (i == nbPionsLigne) {
+                    if (positionExploree == CASE_VIDE || estPionAdverse)
+                        coupsPossibles.add(new Coup(new Position(x, y), new Position(xPlus, yMoins)));
+                }
+            }
+        }
     }
 
     public int getNbPionsLigneDiagonalePositive(int x, int y) {
@@ -193,7 +278,13 @@ public class Board {
         return 0;
     }
 
+    public Coup getDernierCoupJoue() {
+        return _dernierCoupJoue;
+    }
+
     public int valeur;
 
     private int[][] _board;
+
+    private Coup _dernierCoupJoue;
 }
