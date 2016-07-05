@@ -10,7 +10,8 @@ public class Main {
         BufferedInputStream input;
         BufferedOutputStream output;
         int[][] board = new int[8][8];
-        Board myBoard;
+        Board myBoard = null;
+        int couleurEquipe = 0;
         try {
             MyClient = new Socket("localhost", 8888);
             input    = new BufferedInputStream(MyClient.getInputStream());
@@ -23,6 +24,7 @@ public class Main {
 
                 // D�but de la partie en joueur blanc
                 if(cmd == '1'){
+                    couleurEquipe = Board.PION_BLANC;
                     byte[] aBuffer = new byte[1024];
 
                     int size = input.available();
@@ -32,25 +34,22 @@ public class Main {
                     System.out.println(s);
                     String[] boardValues;
                     boardValues = s.split(" ");
-                    int x=0,y=0;
-                    for(int i=0; i<boardValues.length;i++){
-                        board[x][y] = Integer.parseInt(boardValues[i]);
-                        x++;
-                        if(x == 8){
-                            x = 0;
-                            y++;
-                        }
-                    }
+                    initialiserBoard(board, boardValues);
 
                     myBoard = new Board(board, null);
                     System.out.println("Nouvelle partie! Vous jouer blanc, entrez votre premier coup : ");
                     String move = null;
-                    move = console.readLine();
+                    //move = console.readLine();
+                    Coup prochainCoup = myBoard.getProchainCoup(couleurEquipe);
+                    System.out.println("Mon Dernier coup : " + prochainCoup);
+                    myBoard.effectuerCoup(prochainCoup);
+                    move = prochainCoup.toString();
                     output.write(move.getBytes(),0,move.length());
                     output.flush();
                 }
                 // D�but de la partie en joueur Noir
                 if(cmd == '2'){
+                    couleurEquipe = Board.PION_NOIR;
                     System.out.println("Nouvelle partie! Vous jouer noir, attendez le coup des blancs");
                     byte[] aBuffer = new byte[1024];
 
@@ -61,15 +60,7 @@ public class Main {
                     System.out.println(s);
                     String[] boardValues;
                     boardValues = s.split(" ");
-                    int x=0,y=0;
-                    for(int i=0; i<boardValues.length;i++){
-                        board[x][y] = Integer.parseInt(boardValues[i]);
-                        x++;
-                        if(x == 8){
-                            x = 0;
-                            y++;
-                        }
-                    }
+                    initialiserBoard(board, boardValues);
                     myBoard = new Board(board, null);
                 }
 
@@ -84,10 +75,17 @@ public class Main {
                     input.read(aBuffer,0,size);
 
                     String s = new String(aBuffer);
+                    s = s.substring(1, 8);
                     System.out.println("Dernier coup : "+ s);
                     System.out.println("Entrez votre coup : ");
                     String move = null;
-                    move = console.readLine();
+                    //move = console.readLine();
+                    Coup dernierCoupJoue = new Coup(s);
+                    myBoard.effectuerCoup(dernierCoupJoue);
+                    Coup prochainCoup = myBoard.getProchainCoup(couleurEquipe);
+                    System.out.println("Mon Dernier coup : " + prochainCoup);
+                    myBoard.effectuerCoup(prochainCoup);
+                    move = prochainCoup.toString();
                     output.write(move.getBytes(),0,move.length());
                     output.flush();
 
@@ -105,6 +103,18 @@ public class Main {
         }
         catch (IOException e) {
             System.out.println(e);
+        }
+    }
+
+    private static void initialiserBoard(int[][] board, String[] boardValues) {
+        int x=0,y=0;
+        for(int i=0; i<boardValues.length;i++){
+            board[x][y] = Integer.parseInt(boardValues[i]);
+            y++;
+            if(y == 8){
+                y = 0;
+                x++;
+            }
         }
     }
 

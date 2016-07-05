@@ -7,6 +7,11 @@ public class Coup {
         this.arrivee = arrivee;
     }
 
+    public Coup(String coupEnTexte) {
+        this.depart = new Position(coupEnTexte.substring(0, 2));
+        this.arrivee = new Position(coupEnTexte.substring(5));
+    }
+
     public Position depart;
     public Position arrivee;
 

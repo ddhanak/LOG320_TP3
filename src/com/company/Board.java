@@ -388,6 +388,13 @@ public class Board {
         return _dernierCoupJoue;
     }
 
+    public void effectuerCoup(Coup coup) {
+        int couleurPion = _board[coup.depart.x][coup.depart.y];
+        _board[coup.depart.x][coup.depart.y] = CASE_VIDE;
+        _board[coup.arrivee.x][coup.arrivee.y] = couleurPion;
+        _dernierCoupJoue = coup;
+    }
+
     private int[][] _board;
 
     private Coup _dernierCoupJoue;

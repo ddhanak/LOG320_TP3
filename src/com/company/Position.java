@@ -7,6 +7,11 @@ public class Position {
         this.y = y;
     }
 
+    public Position(String positionEnTexte) {
+        this.x = 8 - Integer.parseInt(positionEnTexte.charAt(1) + "");
+        this.y = getIndexLettre(positionEnTexte.charAt(0));
+    }
+
     public int x;
     public int y;
 
@@ -25,4 +30,12 @@ public class Position {
             'G',
             'H'
     };
+
+    private int getIndexLettre(char lettre) {
+        for (int i = 0; i < lettres.length; i++)
+            if (lettres[i] == lettre)
+                return i;
+
+        return -1;
+    }
 }
