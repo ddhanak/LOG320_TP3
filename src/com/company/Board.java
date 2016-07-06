@@ -1,5 +1,6 @@
 package com.company;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,7 +10,7 @@ public class Board {
     public static final int PION_NOIR = 2;
     public static final int PION_BLANC = 4;
 
-    private static final int PROFONDEUR_MAX = 3;
+    private static final int PROFONDEUR_MAX = 2;
 
     public Board(int[][] board, Coup dernierCoupJoue) {
         _board = board;
@@ -21,63 +22,68 @@ public class Board {
     }
 
     public Board getBoardApresProchainCoup(int couleurEquipe) {
-        //return alphaBeta(this, Integer.MIN_VALUE, Integer.MAX_VALUE, 0, couleurEquipe);
-        Board meilleurBoard = null;
-        double meilleureValeure = Integer.MIN_VALUE;
-        List<Board> enfants = getBoardsEnfants(couleurEquipe);
-
-        for (Board enfant : enfants) {
-            double valeur = enfant.calculerValeur(couleurEquipe);
-            if (valeur > meilleureValeure) {
-                meilleurBoard = enfant;
-                meilleureValeure = valeur;
-            }
-        }
-
-        return meilleurBoard;
+        return alphaBeta(this, 0, Integer.MIN_VALUE, Integer.MAX_VALUE, couleurEquipe, true);
     }
 
     /**
-     * NegaMax avec Alpha Beta. NegaMax est une simplification de MiniMax
-     * Inspiré du pseudo code ici : https://fr.wikipedia.org/wiki/%C3%89lagage_alpha-b%C3%AAta
+     * https://en.wikipedia.org/wiki/Alpha%E2%80%93beta_pruning
      * @param board
-     * @param a
-     * @param b
+     * @param profondeur
+     * @param couleurEquipe
+     * @param max
      * @return
      */
-    public static Board alphaBeta(Board board, double a, double b, int niveau, int couleurEquipe) {
-        if (niveau == PROFONDEUR_MAX || board.estGagnant(PION_BLANC)
-                || board.estGagnant(PION_NOIR)) {
+    public Board alphaBeta(Board board, int profondeur, double a, double b, int couleurEquipe, boolean max) {
+        if (profondeur == PROFONDEUR_MAX || board.estGagnant(PION_BLANC)
+                || board.estGagnant(PION_NOIR))
             return board;
-        }
 
-        double meilleurVal = Integer.MIN_VALUE;
-        Board meilleurBoard = null;
-        // Sert seulement pour la racine pour pas tenter de faire un coup plus profond dans l'arbre
-        Board parentMeilleurBoard = null;
+        if (max) {
+            double meilleurVal = Integer.MIN_VALUE;
+            Board meilleurBoard = null;
+            // Sert seulement pour la racine pour pas tenter de faire un coup plus profond dans l'arbre
+            Board parentMeilleurBoard = null;
 
-        int couleurEquipePourCoups = (niveau % 2 == 0) ? couleurEquipe : getCouleurAdverse(couleurEquipe);
-
-        List<Board> enfants = board.getBoardsEnfants(couleurEquipePourCoups);
-
-        for (Board enfant : enfants) {
-            Board boardEnfant = alphaBeta(enfant, -b, -a, niveau+1, couleurEquipe);
-            double val = -boardEnfant.calculerValeur(couleurEquipe);
-
-            if (val > meilleurVal) {
-                meilleurVal = val;
-                meilleurBoard = boardEnfant;
-                parentMeilleurBoard = enfant;
-                if (meilleurVal > a) {
-                    a = meilleurVal;
-                    if (a >= b) {
-                        return meilleurBoard;
-                    }
+            for (Board enfant : board.getBoardsEnfants(couleurEquipe)) {
+                Board boardEnfant = alphaBeta(enfant, profondeur+1, a, b, couleurEquipe, false);
+                double val = boardEnfant.calculerValeur(couleurEquipe);
+                if (val > meilleurVal) {
+                    meilleurVal = val;
+                    meilleurBoard = boardEnfant;
+                    parentMeilleurBoard = enfant;
                 }
-            }
-        }
+                if (meilleurVal > a)
+                    a = meilleurVal;
 
-        return (niveau != 0) ? meilleurBoard : parentMeilleurBoard;
+                if (b <= a)
+                    break;
+            }
+
+            return (profondeur != 0) ? meilleurBoard : parentMeilleurBoard;
+        }
+        else { // MIN
+            double meilleurVal = Integer.MAX_VALUE;
+            Board meilleurBoard = null;
+            Board parentMeilleurBoard = null;
+
+            for (Board enfant : board.getBoardsEnfants(getCouleurAdverse(couleurEquipe))) {
+                Board boardEnfant = alphaBeta(enfant, profondeur+1, a, b, couleurEquipe, true);
+                double val = boardEnfant.calculerValeur(couleurEquipe);
+                if (val < meilleurVal) {
+                    meilleurVal = val;
+                    meilleurBoard = boardEnfant;
+                    parentMeilleurBoard = enfant;
+                }
+
+                if (meilleurVal < b)
+                    b = meilleurVal;
+
+                if (b <= a)
+                    break;
+            }
+
+            return (profondeur != 0) ? meilleurBoard : parentMeilleurBoard;
+        }
     }
 
     private static int getCouleurAdverse(int couleurEquipe) {
@@ -341,75 +347,66 @@ public class Board {
         return nbPions;
     }
 
-    public double calculerValeur(int pionAmi) {
-        if (estGagnant(pionAmi))
+    public double calculerValeur(int couleurPions) {
+        if (estGagnant(couleurPions))
             return 1500;
 
-        int pionEnnemi = getCouleurAdverse(pionAmi);
+        int couleurAdverse = getCouleurAdverse(couleurPions);
 
-        if (estGagnant(pionEnnemi))
+        if (estGagnant(couleurAdverse))
             return -1500;
 
         double nbPionsAmis = 0;
-        //double nbPionsEnnemis = 0;
         double xTotalPionsAmis = 0;
-        //double xTotalPionsEnnemis = 0;
         double yTotalPionsAmis = 0;
-        //double yTotalPionsEnnemis = 0;
 
         for (int x = 0; x != _board.length; x++) {
             for (int y = 0; y != _board.length; y++) {
-                if (_board[x][y] == pionAmi) {
+                if (_board[x][y] == couleurPions) {
                     nbPionsAmis++;
                     xTotalPionsAmis += x;
                     yTotalPionsAmis += y;
                 }
-                /*else if (_board[x][y] != CASE_VIDE) { // Ennemi
-                    nbPionsEnnemis++;
-                    xTotalPionsEnnemis += x;
-                    yTotalPionsEnnemis += y;
-                }*/
             }
         }
 
         double xMoyenAmis = xTotalPionsAmis / nbPionsAmis;
-        //double xMoyenEnnemis = xTotalPionsEnnemis / nbPionsEnnemis;
         double yMoyenAmis = yTotalPionsAmis / nbPionsAmis;
-        //double yMoyenEnnemis = yTotalPionsEnnemis / nbPionsEnnemis;
 
         double sommeEcartsALaMoyenneXAmis = 0;
-        double sommeEcartsALaMoyenneXEnnemis = 0;
         double sommeEcartsALaMoyenneYAmis = 0;
-        double sommeEcartsALaMoyenneYEnnemis = 0;
 
-        for (int x = 0; x != _board.length; x++) {
-            for (int y = 0; y != _board.length; y++) {
-                if (_board[x][y] == pionAmi) {
-                    sommeEcartsALaMoyenneXAmis += Math.abs(x - xMoyenAmis);
-                    sommeEcartsALaMoyenneYAmis += Math.abs(y - yMoyenAmis);
-                }
-                /*else if (_board[x][y] != CASE_VIDE) { // Ennemi
-                    sommeEcartsALaMoyenneXEnnemis += Math.abs(x - xMoyenEnnemis);
-                    sommeEcartsALaMoyenneYEnnemis += Math.abs(y - yMoyenEnnemis);
-                }*/
-            }
-        }
-
-        double sommeEcarts = sommeEcartsALaMoyenneXAmis + sommeEcartsALaMoyenneYAmis;
-        //double valeurEnnemi = sommeEcartsALaMoyenneXEnnemis + sommeEcartsALaMoyenneYEnnemis;
-
-        return 1000-sommeEcarts;// - valeurEnnemi;
-    }
-
-    public boolean estGagnant(int couleurPions) {
-        List<Position> pions = new ArrayList<>();
         for (int x = 0; x != _board.length; x++) {
             for (int y = 0; y != _board.length; y++) {
                 if (_board[x][y] == couleurPions) {
-                    pions.add(new Position(x, y));
+                    sommeEcartsALaMoyenneXAmis += Math.abs(x - xMoyenAmis);
+                    sommeEcartsALaMoyenneYAmis += Math.abs(y - yMoyenAmis);
                 }
             }
         }
+
+        double ecartMoyen = (sommeEcartsALaMoyenneXAmis + sommeEcartsALaMoyenneYAmis) / nbPionsAmis;
+
+        return -ecartMoyen;
+    }
+
+    private int calculerConnectivite(int couleurPions) {
+        List<Position> pions = getPions(couleurPions);
+
+        int nbConnexions = 0;
+
+        for (Position pionDepart : pions) {
+            for (Position pionAAtteinrdre : pions) {
+                if (atteindrePion(pionAAtteinrdre, couleurPions, pionDepart.x, pionDepart.y, pions.size() - 1))
+                    nbConnexions++;
+            }
+        }
+
+        return nbConnexions;
+    }
+
+    public boolean estGagnant(int couleurPions) {
+        List<Position> pions = getPions(couleurPions);
 
         for (Position pionAAtteindre : pions) {
             Position pionDepart = pions.get(0);
@@ -418,6 +415,18 @@ public class Board {
         }
 
         return true;
+    }
+
+    private List<Position> getPions(int couleurPions) {
+        List<Position> pions = new ArrayList<>();
+        for (int x = 0; x != _board.length; x++) {
+            for (int y = 0; y != _board.length; y++) {
+                if (_board[x][y] == couleurPions) {
+                    pions.add(new Position(x, y));
+                }
+            }
+        }
+        return pions;
     }
 
     private boolean atteindrePion(Position pionAAtteindre, int couleurPions, int x, int y, int mouvementsRestants) {
