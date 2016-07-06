@@ -132,12 +132,11 @@ public class BoardTest {
         Board boardYolo = new Board(_boardYolo, null);
 
         // Act
-        int valBoardDepart = boardDepart.calculerValeur(Board.PION_BLANC);
-        int valBoardYolo = boardYolo.calculerValeur(Board.PION_NOIR);
+        double valBoardDepart = boardDepart.calculerValeur(Board.PION_BLANC);
+        double valBoardYolo = boardYolo.calculerValeur(Board.PION_NOIR);
 
-        // Assert
-        assertEquals(0, valBoardDepart);
-        assertEquals(1, valBoardYolo);
+        System.out.println("Valeur blancs board départ : " + valBoardDepart);
+        System.out.println("Valeur noirs board yolo : " + valBoardYolo);
     }
 
     @Test
@@ -163,9 +162,33 @@ public class BoardTest {
         System.out.println("Coup gagnant : " + coupGagnant);
 
         // Assert
-        assertTrue("Partie gagnée.", boardGagnant.calculerValeur(Board.PION_BLANC) > 1000);
+        assertTrue("Partie gagnée.", boardGagnant.estGagnant(Board.PION_BLANC));
 
     }
+
+    @Test
+    public void estGagnant_BoardGagnant() {
+        // Arrange
+        Board board = new Board(_boardGagnant, null);
+
+        // Act
+        boolean blancGagnant = board.estGagnant(Board.PION_BLANC);
+        boolean noirGagnant = board.estGagnant(Board.PION_NOIR);
+
+        // Assert
+        assertTrue(blancGagnant);
+        assertTrue(noirGagnant);
+    }
+
+    private static int[][] _boardGagnant = new int[][] {
+            {0,4,4,0,0,0,0,0},
+            {0,0,0,4,0,0,0,0},
+            {0,0,0,0,0,2,0,0},
+            {0,0,0,0,0,0,2,0},
+            {0,0,0,0,0,0,2,0},
+            {0,0,0,0,0,0,2,0},
+            {0,0,0,0,0,2,0,0},
+            {0,0,0,0,0,0,0,0}};
 
     private static int[][] _boardBlancPresqueGagnant = new int[][] {
             {0,4,4,0,0,0,2,0},

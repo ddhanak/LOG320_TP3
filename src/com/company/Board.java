@@ -9,7 +9,7 @@ public class Board {
     public static final int PION_NOIR = 2;
     public static final int PION_BLANC = 4;
 
-    private static final int PROFONDEUR_MAX = 5;
+    private static final int PROFONDEUR_MAX = 3;
 
     public Board(int[][] board, Coup dernierCoupJoue) {
         _board = board;
@@ -21,7 +21,20 @@ public class Board {
     }
 
     public Board getBoardApresProchainCoup(int couleurEquipe) {
-        return alphaBeta(this, Integer.MIN_VALUE, Integer.MAX_VALUE, 0, couleurEquipe);
+        //return alphaBeta(this, Integer.MIN_VALUE, Integer.MAX_VALUE, 0, couleurEquipe);
+        Board meilleurBoard = null;
+        double meilleureValeure = Integer.MIN_VALUE;
+        List<Board> enfants = getBoardsEnfants(couleurEquipe);
+
+        for (Board enfant : enfants) {
+            double valeur = enfant.calculerValeur(couleurEquipe);
+            if (valeur > meilleureValeure) {
+                meilleurBoard = enfant;
+                meilleureValeure = valeur;
+            }
+        }
+
+        return meilleurBoard;
     }
 
     /**
@@ -32,21 +45,24 @@ public class Board {
      * @param b
      * @return
      */
-    public static Board alphaBeta(Board board, int a, int b, int niveau, int couleurEquipe) {
-        if (niveau == PROFONDEUR_MAX) return board;
+    public static Board alphaBeta(Board board, double a, double b, int niveau, int couleurEquipe) {
+        if (niveau == PROFONDEUR_MAX || board.estGagnant(PION_BLANC)
+                || board.estGagnant(PION_NOIR)) {
+            return board;
+        }
 
-        int meilleurVal = -Integer.MAX_VALUE;
+        double meilleurVal = Integer.MIN_VALUE;
         Board meilleurBoard = null;
         // Sert seulement pour la racine pour pas tenter de faire un coup plus profond dans l'arbre
         Board parentMeilleurBoard = null;
 
-        for (Board enfant : board.getBoardsEnfants(couleurEquipe)) {
-            // Si board est gagnant
-            if (niveau == 0 && enfant.calculerValeur(couleurEquipe) > 1000)
-                return enfant;
+        int couleurEquipePourCoups = (niveau % 2 == 0) ? couleurEquipe : getCouleurAdverse(couleurEquipe);
 
+        List<Board> enfants = board.getBoardsEnfants(couleurEquipePourCoups);
+
+        for (Board enfant : enfants) {
             Board boardEnfant = alphaBeta(enfant, -b, -a, niveau+1, couleurEquipe);
-            int val = -boardEnfant.calculerValeur(couleurEquipe);
+            double val = -boardEnfant.calculerValeur(couleurEquipe);
 
             if (val > meilleurVal) {
                 meilleurVal = val;
@@ -62,6 +78,10 @@ public class Board {
         }
 
         return (niveau != 0) ? meilleurBoard : parentMeilleurBoard;
+    }
+
+    private static int getCouleurAdverse(int couleurEquipe) {
+        return (couleurEquipe == PION_BLANC) ? PION_NOIR : PION_BLANC;
     }
 
     /**
@@ -321,34 +341,125 @@ public class Board {
         return nbPions;
     }
 
-    public int calculerValeur(int pionAmi) {
-        int nbPionsAmis = 0;
-        int nbPionsEnnemis = 0;
-        int nbPionsAmisIsoles = 0;
-        int nbPionsEnnemisIsoles = 0;
+    public double calculerValeur(int pionAmi) {
+        if (estGagnant(pionAmi))
+            return 1500;
+
+        int pionEnnemi = getCouleurAdverse(pionAmi);
+
+        if (estGagnant(pionEnnemi))
+            return -1500;
+
+        double nbPionsAmis = 0;
+        //double nbPionsEnnemis = 0;
+        double xTotalPionsAmis = 0;
+        //double xTotalPionsEnnemis = 0;
+        double yTotalPionsAmis = 0;
+        //double yTotalPionsEnnemis = 0;
 
         for (int x = 0; x != _board.length; x++) {
             for (int y = 0; y != _board.length; y++) {
                 if (_board[x][y] == pionAmi) {
                     nbPionsAmis++;
-                    if (pionEstIsole(x, y))
-                        nbPionsAmisIsoles++;
+                    xTotalPionsAmis += x;
+                    yTotalPionsAmis += y;
                 }
-                else if (_board[x][y] != CASE_VIDE) { // Ennemi
+                /*else if (_board[x][y] != CASE_VIDE) { // Ennemi
                     nbPionsEnnemis++;
-                    if (pionEstIsole(x, y))
-                        nbPionsEnnemisIsoles++;
+                    xTotalPionsEnnemis += x;
+                    yTotalPionsEnnemis += y;
+                }*/
+            }
+        }
+
+        double xMoyenAmis = xTotalPionsAmis / nbPionsAmis;
+        //double xMoyenEnnemis = xTotalPionsEnnemis / nbPionsEnnemis;
+        double yMoyenAmis = yTotalPionsAmis / nbPionsAmis;
+        //double yMoyenEnnemis = yTotalPionsEnnemis / nbPionsEnnemis;
+
+        double sommeEcartsALaMoyenneXAmis = 0;
+        double sommeEcartsALaMoyenneXEnnemis = 0;
+        double sommeEcartsALaMoyenneYAmis = 0;
+        double sommeEcartsALaMoyenneYEnnemis = 0;
+
+        for (int x = 0; x != _board.length; x++) {
+            for (int y = 0; y != _board.length; y++) {
+                if (_board[x][y] == pionAmi) {
+                    sommeEcartsALaMoyenneXAmis += Math.abs(x - xMoyenAmis);
+                    sommeEcartsALaMoyenneYAmis += Math.abs(y - yMoyenAmis);
+                }
+                /*else if (_board[x][y] != CASE_VIDE) { // Ennemi
+                    sommeEcartsALaMoyenneXEnnemis += Math.abs(x - xMoyenEnnemis);
+                    sommeEcartsALaMoyenneYEnnemis += Math.abs(y - yMoyenEnnemis);
+                }*/
+            }
+        }
+
+        double sommeEcarts = sommeEcartsALaMoyenneXAmis + sommeEcartsALaMoyenneYAmis;
+        //double valeurEnnemi = sommeEcartsALaMoyenneXEnnemis + sommeEcartsALaMoyenneYEnnemis;
+
+        return 1000-sommeEcarts;// - valeurEnnemi;
+    }
+
+    public boolean estGagnant(int couleurPions) {
+        List<Position> pions = new ArrayList<>();
+        for (int x = 0; x != _board.length; x++) {
+            for (int y = 0; y != _board.length; y++) {
+                if (_board[x][y] == couleurPions) {
+                    pions.add(new Position(x, y));
                 }
             }
         }
 
-        int valeurAmi = 0;
-        int valeurEnnemi = 0;
+        for (Position pionAAtteindre : pions) {
+            Position pionDepart = pions.get(0);
+            if (!atteindrePion(pionAAtteindre, couleurPions, pionDepart.x, pionDepart.y, pions.size() - 1))
+                return false;
+        }
 
-        valeurAmi = (nbPionsAmis > 1 && nbPionsAmisIsoles > 0) ? 1000 - nbPionsAmisIsoles : 5000; // Victoire ami
-        valeurEnnemi = (nbPionsEnnemis > 1 && nbPionsEnnemisIsoles > 0) ? 1000 - nbPionsEnnemisIsoles : 5000; // Victoire ennemi
+        return true;
+    }
 
-        return valeurAmi - valeurEnnemi;
+    private boolean atteindrePion(Position pionAAtteindre, int couleurPions, int x, int y, int mouvementsRestants) {
+        if (x == pionAAtteindre.x && y == pionAAtteindre.y)
+            return true;
+
+        if (mouvementsRestants == 0)
+            return false;
+
+        if (y + 1 < _board.length && _board[x][y + 1] == couleurPions)
+            if (atteindrePion(pionAAtteindre, couleurPions, x, y + 1, mouvementsRestants - 1))
+                return true;
+
+        if (x + 1 < _board.length && _board[x + 1][y] == couleurPions)
+            if (atteindrePion(pionAAtteindre, couleurPions, x + 1, y, mouvementsRestants - 1))
+                return true;
+
+        if (y - 1 >= 0 && _board[x][y - 1] == couleurPions)
+            if (atteindrePion(pionAAtteindre, couleurPions, x, y - 1, mouvementsRestants - 1))
+                return true;
+
+        if (x - 1 >= 0 && _board[x - 1][y] == couleurPions)
+            if (atteindrePion(pionAAtteindre, couleurPions, x - 1, y, mouvementsRestants - 1))
+                return true;
+
+        if (x + 1 < _board.length && y + 1 < _board.length && _board[x + 1][y + 1] == couleurPions)
+            if (atteindrePion(pionAAtteindre, couleurPions, x + 1, y + 1, mouvementsRestants - 1))
+                return true;
+
+        if (x + 1 < _board.length && y - 1 >= 0 && _board[x + 1][y - 1] == couleurPions)
+            if (atteindrePion(pionAAtteindre, couleurPions, x + 1, y - 1, mouvementsRestants - 1))
+                return true;
+
+        if (x - 1 >= 0 && y + 1 < _board.length && _board[x - 1][y + 1] == couleurPions)
+            if (atteindrePion(pionAAtteindre, couleurPions, x - 1, y + 1, mouvementsRestants - 1))
+                return true;
+
+        if (x - 1 >= 0 && y - 1 >= 0 && _board[x - 1][y - 1] == couleurPions)
+            if (atteindrePion(pionAAtteindre, couleurPions, x - 1, y - 1, mouvementsRestants - 1))
+                return true;
+
+        return false;
     }
 
     public boolean pionEstIsole(int x, int y) {
