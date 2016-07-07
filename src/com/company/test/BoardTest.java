@@ -89,8 +89,8 @@ public class BoardTest {
         Board board = new Board(_boardCoups, null);
 
         // Act
-        List<Board> boardsEnfantsBlancs = board.getBoardsEnfants(Board.PION_BLANC);
-        List<Board> boardsEnfantsNoirs = board.getBoardsEnfants(Board.PION_NOIR);
+        List<Board> boardsEnfantsBlancs = board.getBoardsEnfants(Board.PION_BLANC, 1);
+        List<Board> boardsEnfantsNoirs = board.getBoardsEnfants(Board.PION_NOIR, 1);
 
         // Assert
         assertEquals(24, boardsEnfantsBlancs.size());
@@ -180,6 +180,40 @@ public class BoardTest {
         assertTrue(noirGagnant);
     }
 
+    @Test
+    public void estGagnant_BoardPerdant() {
+        // Arrange
+        Board board = new Board(_boardDepart, null);
+
+        // Act
+        boolean blancGagnant = board.estGagnant(Board.PION_BLANC);
+        boolean noirGagnant = board.estGagnant(Board.PION_NOIR);
+
+        // Assert
+        assertFalse(blancGagnant);
+        assertFalse(noirGagnant);
+    }
+
+    @Test
+    public void getCouleurAdverse() {
+        assertEquals(Board.PION_BLANC, Board.getCouleurAdverse(Board.PION_NOIR));
+        assertEquals(Board.PION_NOIR, Board.getCouleurAdverse(Board.PION_BLANC));
+    }
+
+    @Test
+    public void calculerConnectivite() {
+        Board board = new Board(_boardDepart, null);
+
+        System.out.println(board.calculerConnectivite(Board.PION_BLANC));
+    }
+    /*
+    @Test
+    public void calculerConnectivite() {
+        Board board = new Board(_boardDepart, null);
+
+        System.out.println(board.calculerConnectivite(Board.PION_BLANC));
+    }
+*/
     private static int[][] _boardGagnant = new int[][] {
             {0,4,4,0,0,0,0,0},
             {0,0,0,4,0,0,0,0},
