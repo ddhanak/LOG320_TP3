@@ -437,21 +437,28 @@ public class Board {
         int xAdversaire = totalXAdversaire / nbPionsAdversaire;
         int yAdversaire = totalYAdversaire / nbPionsAdversaire;
 
-        int[][] weights = new int[8][8];
+        int[][] weightsEquipe = new int[8][8];
+        int[][] weightsAdversaire = new int[8][8];
 
         for (int x = 0; x != _board.length; x++) {
             for (int y = 0; y != _board.length; y++) {
-                weights[x][y] = 200 - (int)Math.sqrt(Math.pow(y - yAdversaire, 2) + Math.pow(x - xAdversaire, 2))
+                weightsEquipe[x][y] = 200 - (int)Math.sqrt(Math.pow(y - yAdversaire, 2) + Math.pow(x - xAdversaire, 2))
                 - (int)Math.sqrt(Math.pow(y - yEquipe, 2) + Math.pow(x - xEquipe, 2));
+                weightsAdversaire[x][y] = 200 - (int)Math.sqrt(Math.pow(y - yEquipe, 2) + Math.pow(x - xEquipe, 2))
+                        - (int)Math.sqrt(Math.pow(y - yAdversaire, 2) + Math.pow(x - xAdversaire, 2));
             }
         }
 
-        double poidsTotal = 0;
+        double poidsTotalEquipe = 0;
+        double poidsTotalAdversaire = 0;
 
         for (int x = 0; x != _board.length; x++) {
             for (int y = 0; y != _board.length; y++) {
                 if (_board[x][y] == couleurPions) {
-                    poidsTotal += weights[x][y];
+                    poidsTotalEquipe += weightsEquipe[x][y];
+                }
+                else if (_board[x][y] == couleurAdversaire) {
+                    poidsTotalAdversaire += weightsAdversaire[x][y];
                 }
             }
         }
@@ -461,9 +468,10 @@ public class Board {
         else if (estGagnant(couleurAdversaire))
             return -(10000 - _profondeur);
 
-        double poidsMoyen = poidsTotal / nbPionsEquipe;
+        double poidsMoyenEquipe = poidsTotalEquipe / nbPionsEquipe;
+        double poidsMoyenAdversaire = poidsTotalAdversaire / nbPionsAdversaire;
 
-        return poidsMoyen + calculerConnectivite(couleurPions);
+        return poidsMoyenEquipe - poidsMoyenAdversaire;
     }
 
     public double calculerConnectivite(int couleurPions) {
@@ -522,18 +530,27 @@ public class Board {
             }
         }
 
-        for (int x = 0; x != _board.length; x++) {
-            for (int y = 0; y != _board.length; y++) {
-                if (_board[x][y] == PION_BLANC) {
-                    if (!atteindrePion(x, y, PION_BLANC, xDepartBlanc, yDepartBlanc, nbPionsBlanc - 1))
-                        return false;
+        boolean estGagnant = true;
+
+        for (int x = 0; x != _board.length; x++)
+            for (int y = 0; y != _board.length; y++)
+                if (estGagnant) {
+                    if (_board[x][y] == PION_BLANC)
+                        if (!atteindrePion(x, y, PION_BLANC, xDepartBlanc, yDepartBlanc, nbPionsBlanc - 1))
+                            estGagnant = false;
                 }
-                else if (_board[x][y] == PION_NOIR) {
+                else {
+                    break;
+                }
+
+        if (estGagnant)
+            return true;
+
+        for (int x = 0; x != _board.length; x++)
+            for (int y = 0; y != _board.length; y++)
+                if (_board[x][y] == PION_NOIR)
                     if (!atteindrePion(x, y, PION_NOIR, xDepartNoir, yDepartNoir, nbPionsNoir - 1))
                         return false;
-                }
-            }
-        }
 
         return true;
     }
