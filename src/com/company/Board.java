@@ -2,6 +2,8 @@ package com.company;
 
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class Board {
@@ -10,8 +12,8 @@ public class Board {
             {0,0,0,0,0,0,0,0},
             {0,1,1,1,1,1,1,0},
             {0,1,4,4,4,4,1,0},
-            {0,1,4,9,9,4,1,0},
-            {0,1,4,9,9,4,1,0},
+            {0,1,4,8,8,4,1,0},
+            {0,1,4,8,8,4,1,0},
             {0,1,4,4,4,4,1,0},
             {0,1,1,1,1,1,1,0},
             {0,0,0,0,0,0,0,0}};
@@ -38,9 +40,18 @@ public class Board {
     }
 
     public Board getBoardApresProchainCoup(int couleurEquipe) {
-        Board board = alphaBeta(this, 0, Integer.MIN_VALUE, Integer.MAX_VALUE, couleurEquipe, true);
-        System.out.println(board.calculerValeur(couleurEquipe));
-        return board;
+        Board meilleurBoard = null;
+        double meilleurVal = Integer.MIN_VALUE;
+
+        for (Board enfant : getBoardsEnfants(couleurEquipe, 0)) {
+            double val = alphaBetaVal(enfant, 1, Integer.MIN_VALUE, Integer.MAX_VALUE, couleurEquipe, false);
+            if (val > meilleurVal) {
+                meilleurVal = val;
+                meilleurBoard = enfant;
+            }
+        }
+
+        return meilleurBoard;
     }
 
     /**
@@ -52,8 +63,7 @@ public class Board {
      * @return
      */
     public Board alphaBeta(Board board, int profondeur, double a, double b, int couleurEquipe, boolean max) {
-        if (profondeur == PROFONDEUR_MAX || board.estGagnant(PION_BLANC)
-                || board.estGagnant(PION_NOIR))
+        if (profondeur == PROFONDEUR_MAX || board.estGagnant())
             return board;
 
         if (max) {
@@ -101,6 +111,38 @@ public class Board {
             }
 
             return (profondeur != 0) ? meilleurBoard : parentMeilleurBoard;
+        }
+    }
+
+    public double alphaBetaVal(Board board, int profondeur, double a, double b, int couleurEquipe, boolean max) {
+        if (profondeur == PROFONDEUR_MAX || board.estGagnant())
+            return board.calculerValeur(couleurEquipe);
+
+        if (max) {
+            double meilleurVal = Integer.MIN_VALUE;
+            for (Board enfant : board.getBoardsEnfants(couleurEquipe, profondeur)) {
+                double val = alphaBetaVal(enfant, profondeur+1, a, b, couleurEquipe, false);
+                if (val > meilleurVal)
+                    meilleurVal = val;
+                if (meilleurVal > a)
+                    a = meilleurVal;
+                if (b <= a)
+                    break;
+            }
+            return meilleurVal;
+        }
+        else { // MIN
+            double meilleurVal = Integer.MAX_VALUE;
+            for (Board enfant : board.getBoardsEnfants(getCouleurAdverse(couleurEquipe), profondeur)) {
+                double val = alphaBetaVal(enfant, profondeur+1, a, b, couleurEquipe, true);
+                if (val < meilleurVal)
+                    meilleurVal = val;
+                if (meilleurVal < b)
+                    b = meilleurVal;
+                if (b <= a)
+                    break;
+            }
+            return meilleurVal;
         }
     }
 
@@ -415,13 +457,13 @@ public class Board {
         }
 
         if (estGagnant(couleurPions))
-            poidsTotal += 5000 / (_profondeur + 1);
+            return 10000 - _profondeur;
         else if (estGagnant(couleurAdversaire))
-            poidsTotal -= 5000 / (_profondeur + 1);
+            return -(10000 - _profondeur);
 
         double poidsMoyen = poidsTotal / nbPionsEquipe;
 
-        return poidsMoyen;
+        return poidsMoyen + calculerConnectivite(couleurPions);
     }
 
     public double calculerConnectivite(int couleurPions) {
@@ -454,7 +496,46 @@ public class Board {
             }
         }
 
-        return nbConnexions / nbPions;
+        return nbConnexions / (2*nbPions);
+    }
+
+    public boolean estGagnant() {
+        int xDepartBlanc = 0;
+        int yDepartBlanc = 0;
+        int nbPionsBlanc = 0;
+        int xDepartNoir = 0;
+        int yDepartNoir = 0;
+        int nbPionsNoir = 0;
+
+        for (int x = 0; x != _board.length; x++) {
+            for (int y = 0; y != _board.length; y++) {
+                if (_board[x][y] == PION_BLANC) {
+                    xDepartBlanc = x;
+                    yDepartBlanc = y;
+                    nbPionsBlanc++;
+                }
+                else if (_board[x][y] == PION_NOIR) {
+                    xDepartNoir = x;
+                    yDepartNoir = y;
+                    nbPionsNoir++;
+                }
+            }
+        }
+
+        for (int x = 0; x != _board.length; x++) {
+            for (int y = 0; y != _board.length; y++) {
+                if (_board[x][y] == PION_BLANC) {
+                    if (!atteindrePion(x, y, PION_BLANC, xDepartBlanc, yDepartBlanc, nbPionsBlanc - 1))
+                        return false;
+                }
+                else if (_board[x][y] == PION_NOIR) {
+                    if (!atteindrePion(x, y, PION_NOIR, xDepartNoir, yDepartNoir, nbPionsNoir - 1))
+                        return false;
+                }
+            }
+        }
+
+        return true;
     }
 
     public boolean estGagnant(int couleurPions) {
