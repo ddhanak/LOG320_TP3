@@ -8,16 +8,6 @@ import java.util.List;
 
 public class Board {
 
-    public static final int[][] WEIGHTS = {
-            {0,0,0,0,0,0,0,0},
-            {0,1,1,1,1,1,1,0},
-            {0,1,4,4,4,4,1,0},
-            {0,1,4,8,8,4,1,0},
-            {0,1,4,8,8,4,1,0},
-            {0,1,4,4,4,4,1,0},
-            {0,1,1,1,1,1,1,0},
-            {0,0,0,0,0,0,0,0}};
-
     public static final int CASE_VIDE = 0;
     public static final int PION_NOIR = 2;
     public static final int PION_BLANC = 4;
