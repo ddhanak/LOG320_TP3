@@ -40,10 +40,31 @@ public class Main {
                     System.out.println("Nouvelle partie! Vous jouer blanc, entrez votre premier coup : ");
                     String move = null;
                     //move = console.readLine();
-                    Coup prochainCoup = myBoard.getProchainCoup(couleurEquipe);
-                    System.out.println("Mon Dernier coup : " + prochainCoup);
-                    myBoard.effectuerCoup(prochainCoup);
-                    move = prochainCoup.toString();
+                    Board finalMyBoard = myBoard;
+                    int finalCouleurEquipe = couleurEquipe;
+                    final Coup[] prochainCoup = new Coup[1];
+                    Thread t1 = new Thread(() -> {
+                        prochainCoup[0] = finalMyBoard.getProchainCoup(finalCouleurEquipe);
+                    });
+                    t1.start();
+                    try {
+                        for (int i = 1; i <= 4; i++) {
+                            Thread.sleep(1000);
+                            if (prochainCoup[0] != null)
+                                break;
+                        }
+
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+
+                    if (prochainCoup[0] == null) {
+                        prochainCoup[0] = myBoard.getProchainCoupRapide(couleurEquipe);
+                    }
+
+                    System.out.println("Mon Dernier coup : " + prochainCoup[0]);
+                    myBoard.effectuerCoup(prochainCoup[0]);
+                    move = prochainCoup[0].toString();
                     output.write(move.getBytes(),0,move.length());
                     output.flush();
                 }
@@ -82,10 +103,30 @@ public class Main {
                     //move = console.readLine();
                     Coup dernierCoupJoue = new Coup(s);
                     myBoard.effectuerCoup(dernierCoupJoue);
-                    Coup prochainCoup = myBoard.getProchainCoup(couleurEquipe);
-                    System.out.println("Mon Dernier coup : " + prochainCoup);
-                    myBoard.effectuerCoup(prochainCoup);
-                    move = prochainCoup.toString();
+                    Board finalMyBoard = myBoard;
+                    int finalCouleurEquipe = couleurEquipe;
+                    final Coup[] prochainCoup = new Coup[1];
+                    Thread t1 = new Thread(() -> {
+                        prochainCoup[0] = finalMyBoard.getProchainCoup(finalCouleurEquipe);
+                    });
+                    t1.start();
+                    try {
+                        for (int i = 1; i <= 4; i++) {
+                            Thread.sleep(1000);
+                            if (prochainCoup[0] != null)
+                                break;
+                        }
+
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+
+                    if (prochainCoup[0] == null) {
+                        prochainCoup[0] = myBoard.getProchainCoupRapide(couleurEquipe);
+                    }
+                    System.out.println("Mon Dernier coup : " + prochainCoup[0]);
+                    myBoard.effectuerCoup(prochainCoup[0]);
+                    move = prochainCoup[0].toString();
                     output.write(move.getBytes(),0,move.length());
                     output.flush();
 

@@ -1,9 +1,6 @@
 package com.company;
 
-import java.awt.*;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 public class Board {
@@ -27,6 +24,21 @@ public class Board {
 
     public Coup getProchainCoup(int couleurEquipe) {
         return getBoardApresProchainCoup(couleurEquipe).getDernierCoupJoue();
+    }
+
+    public Coup getProchainCoupRapide(int couleurEquipe) {
+        Board meilleurBoard = null;
+        double meilleurVal = Integer.MIN_VALUE;
+
+        for (Board enfant : getBoardsEnfants(couleurEquipe, 0)) {
+            double val = enfant.calculerValeur(couleurEquipe);
+            if (val > meilleurVal) {
+                meilleurVal = val;
+                meilleurBoard = enfant;
+            }
+        }
+
+        return meilleurBoard.getDernierCoupJoue();
     }
 
     public Board getBoardApresProchainCoup(int couleurEquipe) {
