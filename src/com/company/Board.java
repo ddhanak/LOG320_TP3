@@ -379,15 +379,15 @@ public class Board {
         int xAdversaire = totalXAdversaire / nbPionsAdversaire;
         int yAdversaire = totalYAdversaire / nbPionsAdversaire;
 
-        int[][] weightsEquipe = new int[8][8];
-        int[][] weightsAdversaire = new int[8][8];
+        double[][] weightsEquipe = new double[8][8];
+        double[][] weightsAdversaire = new double[8][8];
 
         for (int x = 0; x != _board.length; x++) {
             for (int y = 0; y != _board.length; y++) {
-                weightsEquipe[x][y] = 200 - (int)Math.sqrt(Math.pow(y - yAdversaire, 2) + Math.pow(x - xAdversaire, 2))
-                - (int)Math.sqrt(Math.pow(y - yEquipe, 2) + Math.pow(x - xEquipe, 2));
-                weightsAdversaire[x][y] = 200 - (int)Math.sqrt(Math.pow(y - yEquipe, 2) + Math.pow(x - xEquipe, 2))
-                        - (int)Math.sqrt(Math.pow(y - yAdversaire, 2) + Math.pow(x - xAdversaire, 2));
+                weightsEquipe[x][y] = 100 - Math.sqrt(Math.pow(y - yAdversaire, 2) + Math.pow(x - xAdversaire, 2))
+                        - Math.sqrt(Math.pow(y - yEquipe, 2) + Math.pow(x - xEquipe, 2));
+                weightsAdversaire[x][y] = 100 - Math.sqrt(Math.pow(y - yEquipe, 2) + Math.pow(x - xEquipe, 2))
+                        - Math.sqrt(Math.pow(y - yAdversaire, 2) + Math.pow(x - xAdversaire, 2));
             }
         }
 
@@ -406,12 +406,12 @@ public class Board {
         }
 
         if (estGagnant(couleurEquipe))
-            return 10000 - _profondeur;
+            return 5000 - _profondeur;
         else if (estGagnant(couleurAdversaire))
-            return -(10000 - _profondeur);
+            return -(5000 - _profondeur);
 
-        double poidsMoyenEquipe = poidsTotalEquipe / nbPionsEquipe;
-        double poidsMoyenAdversaire = poidsTotalAdversaire / nbPionsAdversaire;
+        double poidsMoyenEquipe = poidsTotalEquipe / (double)nbPionsEquipe;
+        double poidsMoyenAdversaire = poidsTotalAdversaire / (double)nbPionsAdversaire;
 
         return poidsMoyenEquipe - poidsMoyenAdversaire;
     }
