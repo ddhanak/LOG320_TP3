@@ -46,7 +46,7 @@ public class Board {
         double meilleurVal = Integer.MIN_VALUE;
 
         for (Board enfant : getBoardsEnfants(couleurEquipe, 0)) {
-            double val = alphaBetaVal(enfant, 1, Integer.MIN_VALUE, Integer.MAX_VALUE, couleurEquipe, false);
+            double val = alphaBeta(enfant, 1, Integer.MIN_VALUE, Integer.MAX_VALUE, couleurEquipe, false);
             if (val > meilleurVal) {
                 meilleurVal = val;
                 meilleurBoard = enfant;
@@ -56,74 +56,14 @@ public class Board {
         return meilleurBoard;
     }
 
-    /**
-     * https://en.wikipedia.org/wiki/Alpha%E2%80%93beta_pruning
-     * @param board
-     * @param profondeur
-     * @param couleurEquipe
-     * @param max
-     * @return
-     */
-    public Board alphaBeta(Board board, int profondeur, double a, double b, int couleurEquipe, boolean max) {
-        if (profondeur == PROFONDEUR_MAX || board.estGagnant())
-            return board;
-
-        if (max) {
-            double meilleurVal = Integer.MIN_VALUE;
-            Board meilleurBoard = null;
-            // Sert seulement pour la racine pour pas tenter de faire un coup plus profond dans l'arbre
-            Board parentMeilleurBoard = null;
-
-            for (Board enfant : board.getBoardsEnfants(couleurEquipe, profondeur)) {
-                Board boardEnfant = alphaBeta(enfant, profondeur+1, a, b, couleurEquipe, false);
-                double val = boardEnfant.calculerValeur(couleurEquipe);
-                if (val > meilleurVal) {
-                    meilleurVal = val;
-                    meilleurBoard = boardEnfant;
-                    parentMeilleurBoard = enfant;
-                }
-                if (meilleurVal > a)
-                    a = meilleurVal;
-
-                if (b <= a)
-                    break;
-            }
-
-            return (profondeur != 0) ? meilleurBoard : parentMeilleurBoard;
-        }
-        else { // MIN
-            double meilleurVal = Integer.MAX_VALUE;
-            Board meilleurBoard = null;
-            Board parentMeilleurBoard = null;
-
-            for (Board enfant : board.getBoardsEnfants(getCouleurAdverse(couleurEquipe), profondeur)) {
-                Board boardEnfant = alphaBeta(enfant, profondeur+1, a, b, couleurEquipe, true);
-                double val = boardEnfant.calculerValeur(couleurEquipe);
-                if (val < meilleurVal) {
-                    meilleurVal = val;
-                    meilleurBoard = boardEnfant;
-                    parentMeilleurBoard = enfant;
-                }
-
-                if (meilleurVal < b)
-                    b = meilleurVal;
-
-                if (b <= a)
-                    break;
-            }
-
-            return (profondeur != 0) ? meilleurBoard : parentMeilleurBoard;
-        }
-    }
-
-    public double alphaBetaVal(Board board, int profondeur, double a, double b, int couleurEquipe, boolean max) {
+    public double alphaBeta(Board board, int profondeur, double a, double b, int couleurEquipe, boolean max) {
         if (profondeur == PROFONDEUR_MAX || board.estGagnant())
             return board.calculerValeur(couleurEquipe);
 
         if (max) {
             double meilleurVal = Integer.MIN_VALUE;
             for (Board enfant : board.getBoardsEnfants(couleurEquipe, profondeur)) {
-                double val = alphaBetaVal(enfant, profondeur+1, a, b, couleurEquipe, false);
+                double val = alphaBeta(enfant, profondeur+1, a, b, couleurEquipe, false);
                 if (val > meilleurVal)
                     meilleurVal = val;
                 if (meilleurVal > a)
@@ -136,7 +76,7 @@ public class Board {
         else { // MIN
             double meilleurVal = Integer.MAX_VALUE;
             for (Board enfant : board.getBoardsEnfants(getCouleurAdverse(couleurEquipe), profondeur)) {
-                double val = alphaBetaVal(enfant, profondeur+1, a, b, couleurEquipe, true);
+                double val = alphaBeta(enfant, profondeur+1, a, b, couleurEquipe, true);
                 if (val < meilleurVal)
                     meilleurVal = val;
                 if (meilleurVal < b)

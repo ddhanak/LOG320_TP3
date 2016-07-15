@@ -206,14 +206,7 @@ public class BoardTest {
 
         System.out.println(board.calculerConnectivite(Board.PION_BLANC));
     }
-    /*
-    @Test
-    public void calculerConnectivite() {
-        Board board = new Board(_boardDepart, null);
 
-        System.out.println(board.calculerConnectivite(Board.PION_BLANC));
-    }
-*/
     private static int[][] _boardGagnant = new int[][] {
             {0,4,4,0,0,0,0,0},
             {0,0,0,4,0,0,0,0},

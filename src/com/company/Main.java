@@ -6,6 +6,15 @@ import java.net.Socket;
 public class Main {
 
     public static void main(String[] args) {
+        String host = "localhost";
+        int port = 8888;
+
+        if (args != null && args.length > 0) {
+            host = args[0];
+            if (args.length > 1)
+                port = Integer.parseInt(args[1]);
+        }
+
         Socket MyClient;
         BufferedInputStream input;
         BufferedOutputStream output;
@@ -13,7 +22,7 @@ public class Main {
         Board myBoard = null;
         int couleurEquipe = 0;
         try {
-            MyClient = new Socket("localhost", 8888);
+            MyClient = new Socket(host, port);
             input    = new BufferedInputStream(MyClient.getInputStream());
             output   = new BufferedOutputStream(MyClient.getOutputStream());
             BufferedReader console = new BufferedReader(new InputStreamReader(System.in));
