@@ -349,8 +349,8 @@ public class Board {
         return nbPions;
     }
 
-    public double calculerValeur(int couleurPions) {
-        int couleurAdversaire = getCouleurAdverse(couleurPions);
+    public double calculerValeur(int couleurEquipe) {
+        int couleurAdversaire = getCouleurAdverse(couleurEquipe);
 
         int totalXEquipe = 0;
         int totalYEquipe = 0;
@@ -361,7 +361,7 @@ public class Board {
 
         for (int x = 0; x != _board.length; x++) {
             for (int y = 0; y != _board.length; y++) {
-                if (_board[x][y] == couleurPions) {
+                if (_board[x][y] == couleurEquipe) {
                     totalXEquipe += x;
                     totalYEquipe += y;
                     nbPionsEquipe++;
@@ -396,7 +396,7 @@ public class Board {
 
         for (int x = 0; x != _board.length; x++) {
             for (int y = 0; y != _board.length; y++) {
-                if (_board[x][y] == couleurPions) {
+                if (_board[x][y] == couleurEquipe) {
                     poidsTotalEquipe += weightsEquipe[x][y];
                 }
                 else if (_board[x][y] == couleurAdversaire) {
@@ -405,7 +405,7 @@ public class Board {
             }
         }
 
-        if (estGagnant(couleurPions))
+        if (estGagnant(couleurEquipe))
             return 10000 - _profondeur;
         else if (estGagnant(couleurAdversaire))
             return -(10000 - _profondeur);
@@ -414,39 +414,6 @@ public class Board {
         double poidsMoyenAdversaire = poidsTotalAdversaire / nbPionsAdversaire;
 
         return poidsMoyenEquipe - poidsMoyenAdversaire;
-    }
-
-    public double calculerConnectivite(int couleurPions) {
-        double nbConnexions = 0;
-        double nbPions = 0;
-
-        for (int x = 0; x != _board.length; x++) {
-            for (int y = 0; y != _board.length; y++) {
-                if (_board[x][y] == couleurPions) {
-                    nbPions++;
-                }
-            }
-        }
-
-        for (int x = 0; x != _board.length; x++) {
-            for (int y = 0; y != _board.length; y++) {
-                if (_board[x][y] == couleurPions) {
-                    int xDepart = x;
-                    int yDepart = y;
-
-                    for (int x2 = 0; x2 != _board.length; x2++) {
-                        for (int y2 = 0; y2 != _board.length; y2++) {
-                            if (_board[x2][y2] == couleurPions) {
-                                if (atteindrePion(x, y, couleurPions, xDepart, yDepart, nbPions - 1))
-                                    nbConnexions++;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        return nbConnexions / (2*nbPions);
     }
 
     public boolean estGagnant() {
@@ -498,8 +465,6 @@ public class Board {
     }
 
     public boolean estGagnant(int couleurPions) {
-        //List<Position> pions = getPions(couleurPions);
-
         int xDepart = 0;
         int yDepart = 0;
         int nbPions = 0;
@@ -522,26 +487,8 @@ public class Board {
                 }
             }
         }
-/*
-        for (Position pionAAtteindre : pions) {
-            Position pionDepart = pions.get(0);
-            if (!atteindrePion(pionAAtteindre, couleurPions, pionDepart.x, pionDepart.y, pions.size() - 1))
-                return false;
-        }*/
 
         return true;
-    }
-
-    public List<Position> getPions(int couleurPions) {
-        List<Position> pions = new ArrayList<>();
-        for (int x = 0; x != _board.length; x++) {
-            for (int y = 0; y != _board.length; y++) {
-                if (_board[x][y] == couleurPions) {
-                    pions.add(new Position(x, y));
-                }
-            }
-        }
-        return pions;
     }
 
     public boolean atteindrePion(int xAAtteindre, int yAAtteindre, int couleurPions, int x, int y, double mouvementsRestants) {

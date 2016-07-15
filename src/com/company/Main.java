@@ -56,16 +56,8 @@ public class Main {
                         prochainCoup[0] = finalMyBoard.getProchainCoup(finalCouleurEquipe);
                     });
                     t1.start();
-                    try {
-                        for (int i = 1; i <= 4; i++) {
-                            Thread.sleep(1000);
-                            if (prochainCoup[0] != null)
-                                break;
-                        }
 
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
+                    attendreProchainCoup(prochainCoup);
 
                     if (prochainCoup[0] == null) {
                         prochainCoup[0] = myBoard.getProchainCoupRapide(couleurEquipe);
@@ -119,16 +111,8 @@ public class Main {
                         prochainCoup[0] = finalMyBoard.getProchainCoup(finalCouleurEquipe);
                     });
                     t1.start();
-                    try {
-                        for (int i = 1; i <= 4; i++) {
-                            Thread.sleep(1000);
-                            if (prochainCoup[0] != null)
-                                break;
-                        }
 
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
+                    attendreProchainCoup(prochainCoup);
 
                     if (prochainCoup[0] == null) {
                         prochainCoup[0] = myBoard.getProchainCoupRapide(couleurEquipe);
@@ -165,6 +149,19 @@ public class Main {
                 y = 0;
                 x++;
             }
+        }
+    }
+
+    private static void attendreProchainCoup(Coup[] prochainCoup) {
+        try {
+            for (int i = 1; i <= 4; i++) {
+                Thread.sleep(1000);
+                if (prochainCoup[0] != null)
+                    break;
+            }
+
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
     }
 
