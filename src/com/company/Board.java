@@ -385,10 +385,12 @@ public class Board {
         for (int x = 0; x != _board.length; x++) {
             for (int y = 0; y != _board.length; y++) {
                 if (_board[x][y] == couleurEquipe) {
-                    poidsTotalEquipe += 100 - Math.sqrt(Math.pow(y - yEquipe, 2) + Math.pow(x - xEquipe, 2));
+                    poidsTotalEquipe += 100 - Math.sqrt(Math.pow(y - yAdversaire, 2) + Math.pow(x - xAdversaire, 2))
+                            - Math.sqrt(Math.pow(y - yEquipe, 2) + Math.pow(x - xEquipe, 2));
                 }
                 else if (_board[x][y] == couleurAdversaire) {
-                    poidsTotalAdversaire += 100 - Math.sqrt(Math.pow(y - yAdversaire, 2) + Math.pow(x - xAdversaire, 2));
+                    poidsTotalAdversaire += 100 - Math.sqrt(Math.pow(y - yEquipe, 2) + Math.pow(x - xEquipe, 2))
+                            - Math.sqrt(Math.pow(y - yAdversaire, 2) + Math.pow(x - xAdversaire, 2));
                 }
             }
         }
