@@ -398,11 +398,168 @@ public class Board {
         double poidsMoyenAdversaire = poidsTotalAdversaire / nbPionsAdversaire;
         
         if (estGagnant(couleurEquipe))
-            return 5000 - _profondeur;
+            return 10000 - _profondeur;
         else if (estGagnant(couleurAdversaire))
-            return -(5000 - _profondeur);
+            return -(10000 - _profondeur);
 
-        return poidsMoyenEquipe - poidsMoyenAdversaire;
+        return poidsMoyenEquipe - poidsMoyenAdversaire - calculerIsolement(couleurEquipe) / nbPionsEquipe + calculerIsolement(couleurAdversaire) / nbPionsAdversaire;
+    }
+
+    public int calculerIsolement(int couleurEquipe) {
+        int isolement = 0;
+        for (int x = 0; x != _board.length; x++) {
+            for (int y = 0; y != _board.length; y++) {
+                if (_board[x][y] == couleurEquipe) {
+                    isolement += calculerIsolement(x, y, couleurEquipe);
+                }
+            }
+        }
+
+        return isolement;
+    }
+
+    private int calculerIsolement(int x, int y, int couleurEquipe) {
+        int isolement = 0;
+        int couleurAdverse = getCouleurAdverse(couleurEquipe);
+        boolean estIsole = false;
+
+        // Isolement vertical
+        for (int i = 1; i <= 7; i++) {
+            int xPlus = x + i;
+            if (xPlus < _board.length) {
+                if (!estIsole && _board[xPlus][y] == couleurAdverse)
+                    estIsole = true;
+                else if (_board[xPlus][y] == couleurEquipe)
+                    break;
+            }
+            else
+                break;
+        }
+        if (estIsole) {
+            isolement++;
+            estIsole = false;
+        }
+
+        for (int i = 1; i <= 7; i++) {
+            int xMoins = x - i;
+            if (xMoins >= 0) {
+                if (!estIsole && _board[xMoins][y] == couleurAdverse)
+                    estIsole = true;
+                else if (_board[xMoins][y] == couleurEquipe)
+                    break;
+            }
+            else
+                break;
+        }
+        if (estIsole) {
+            isolement++;
+            estIsole = false;
+        }
+
+        // Isolement horizontal
+        for (int i = 1; i <= 7; i++) {
+            int yPlus = y + i;
+            if (yPlus < _board.length) {
+                if (!estIsole && _board[x][yPlus] == couleurAdverse)
+                    estIsole = true;
+                else if (_board[x][yPlus] == couleurEquipe)
+                    break;
+            }
+            else
+                break;
+        }
+        if (estIsole) {
+            isolement++;
+            estIsole = false;
+        }
+
+        for (int i = 1; i <= 7; i++) {
+            int yMoins = y - i;
+            if (yMoins >= 0) {
+                if (!estIsole && _board[x][yMoins] == couleurAdverse)
+                    estIsole = true;
+                else if (_board[x][yMoins] == couleurEquipe)
+                    break;
+            }
+            else
+                break;
+        }
+        if (estIsole) {
+            isolement++;
+            estIsole = false;
+        }
+
+        // Isolement diagonale positive
+        for (int i = 1; i <= 7; i++) {
+            int yPlus = y + i;
+            int xMoins = x - i;
+            if (yPlus < _board.length && xMoins >= 0) {
+                if (!estIsole && _board[xMoins][yPlus] == couleurAdverse)
+                    estIsole = true;
+                else if (_board[xMoins][yPlus] == couleurEquipe)
+                    break;
+            }
+            else
+                break;
+        }
+        if (estIsole) {
+            isolement++;
+            estIsole = false;
+        }
+
+        for (int i = 1; i <= 7; i++) {
+            int yMoins = y - i;
+            int xPlus = x + i;
+            if (yMoins >= 0 && xPlus < _board.length) {
+                if (!estIsole && _board[xPlus][yMoins] == couleurAdverse)
+                    estIsole = true;
+                else if (_board[xPlus][yMoins] == couleurEquipe)
+                    break;
+            }
+            else
+                break;
+        }
+        if (estIsole) {
+            isolement++;
+            estIsole = false;
+        }
+
+        // Isolement diagonale negative
+        for (int i = 1; i <= 7; i++) {
+            int yPlus = y + i;
+            int xPlus = x + i;
+            if (yPlus < _board.length && xPlus < _board.length) {
+                if (!estIsole && _board[xPlus][yPlus] == couleurAdverse)
+                    estIsole = true;
+                else if (_board[xPlus][yPlus] == couleurEquipe)
+                    break;
+            }
+            else
+                break;
+        }
+        if (estIsole) {
+            isolement++;
+            estIsole = false;
+        }
+
+        for (int i = 1; i <= 7; i++) {
+            int yMoins = y - i;
+            int xMoins = x - i;
+            if (yMoins >= 0 && xMoins >= 0) {
+                if (!estIsole && _board[xMoins][yMoins] == couleurAdverse)
+                    estIsole = true;
+                else if (_board[xMoins][yMoins] == couleurEquipe)
+                    break;
+            }
+            else
+                break;
+        }
+        if (estIsole) {
+            isolement++;
+            estIsole = false;
+        }
+
+        return isolement;
     }
 
     public boolean estGagnant() {
