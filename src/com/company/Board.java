@@ -379,28 +379,18 @@ public class Board {
         int xAdversaire = totalXAdversaire / nbPionsAdversaire;
         int yAdversaire = totalYAdversaire / nbPionsAdversaire;
 
-        double[][] weightsEquipe = new double[8][8];
-        double[][] weightsAdversaire = new double[8][8];
-
-        for (int x = 0; x != _board.length; x++) {
-            for (int y = 0; y != _board.length; y++) {
-                weightsEquipe[x][y] = 100 - Math.sqrt(Math.pow(y - yAdversaire, 2) + Math.pow(x - xAdversaire, 2))
-                        - Math.sqrt(Math.pow(y - yEquipe, 2) + Math.pow(x - xEquipe, 2));
-                weightsAdversaire[x][y] = 100 - Math.sqrt(Math.pow(y - yEquipe, 2) + Math.pow(x - xEquipe, 2))
-                        - Math.sqrt(Math.pow(y - yAdversaire, 2) + Math.pow(x - xAdversaire, 2));
-            }
-        }
-
         double poidsTotalEquipe = 0;
         double poidsTotalAdversaire = 0;
 
         for (int x = 0; x != _board.length; x++) {
             for (int y = 0; y != _board.length; y++) {
                 if (_board[x][y] == couleurEquipe) {
-                    poidsTotalEquipe += weightsEquipe[x][y];
+                    poidsTotalEquipe += 200 - Math.sqrt(Math.pow(y - yAdversaire, 2) + Math.pow(x - xAdversaire, 2))
+                            - Math.sqrt(Math.pow(y - yEquipe, 2) + Math.pow(x - xEquipe, 2));
                 }
                 else if (_board[x][y] == couleurAdversaire) {
-                    poidsTotalAdversaire += weightsAdversaire[x][y];
+                    poidsTotalAdversaire += 200 - Math.sqrt(Math.pow(y - yEquipe, 2) + Math.pow(x - xEquipe, 2))
+                            - Math.sqrt(Math.pow(y - yAdversaire, 2) + Math.pow(x - xAdversaire, 2));
                 }
             }
         }
@@ -409,9 +399,9 @@ public class Board {
             return 5000 - _profondeur;
         else if (estGagnant(couleurAdversaire))
             return -(5000 - _profondeur);
-
-        double poidsMoyenEquipe = poidsTotalEquipe / (double)nbPionsEquipe;
-        double poidsMoyenAdversaire = poidsTotalAdversaire / (double)nbPionsAdversaire;
+            
+        double poidsMoyenEquipe = poidsTotalEquipe / nbPionsEquipe;
+        double poidsMoyenAdversaire = poidsTotalAdversaire / nbPionsAdversaire;
 
         return poidsMoyenEquipe - poidsMoyenAdversaire;
     }
