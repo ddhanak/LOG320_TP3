@@ -154,8 +154,8 @@ public class Main {
 
     private static void attendreProchainCoup(Coup[] prochainCoup) {
         try {
-            for (int i = 1; i <= 4; i++) {
-                Thread.sleep(1000);
+            for (int i = 1; i <= 7; i++) {
+                Thread.sleep(500);
                 if (prochainCoup[0] != null)
                     break;
             }

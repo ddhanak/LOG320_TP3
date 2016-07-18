@@ -385,25 +385,25 @@ public class Board {
         for (int x = 0; x != _board.length; x++) {
             for (int y = 0; y != _board.length; y++) {
                 if (_board[x][y] == couleurEquipe) {
-                    poidsTotalEquipe += 200 - Math.sqrt(Math.pow(y - yAdversaire, 2) + Math.pow(x - xAdversaire, 2))
-                            - Math.sqrt(Math.pow(y - yEquipe, 2) + Math.pow(x - xEquipe, 2));
+                    poidsTotalEquipe += 100 - Math.sqrt(Math.pow(y - yEquipe, 2) + Math.pow(x - xEquipe, 2));
                 }
                 else if (_board[x][y] == couleurAdversaire) {
-                    poidsTotalAdversaire += 200 - Math.sqrt(Math.pow(y - yEquipe, 2) + Math.pow(x - xEquipe, 2))
-                            - Math.sqrt(Math.pow(y - yAdversaire, 2) + Math.pow(x - xAdversaire, 2));
+                    poidsTotalAdversaire += 100 - Math.sqrt(Math.pow(y - yAdversaire, 2) + Math.pow(x - xAdversaire, 2));
                 }
             }
         }
-
-        if (estGagnant(couleurEquipe))
-            return 5000 - _profondeur;
-        else if (estGagnant(couleurAdversaire))
-            return -(5000 - _profondeur);
             
         double poidsMoyenEquipe = poidsTotalEquipe / nbPionsEquipe;
         double poidsMoyenAdversaire = poidsTotalAdversaire / nbPionsAdversaire;
 
-        return poidsMoyenEquipe - poidsMoyenAdversaire;
+        double bonusVictoire = 0;
+
+        if (estGagnant(couleurEquipe))
+            bonusVictoire += 1000 - _profondeur;
+        else if (estGagnant(couleurAdversaire))
+            bonusVictoire -= 1000 - _profondeur;
+
+        return poidsMoyenEquipe - poidsMoyenAdversaire + bonusVictoire;
     }
 
     public boolean estGagnant() {
