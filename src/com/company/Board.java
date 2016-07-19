@@ -31,7 +31,7 @@ public class Board {
         double meilleurVal = Integer.MIN_VALUE;
 
         for (Board enfant : getBoardsEnfants(couleurEquipe, 0)) {
-            double val = enfant.calculerValeur(couleurEquipe);
+            double val = enfant.evaluer(couleurEquipe);
             if (val > meilleurVal) {
                 meilleurVal = val;
                 meilleurBoard = enfant;
@@ -58,7 +58,7 @@ public class Board {
 
     public double alphaBeta(Board board, int profondeur, double a, double b, int couleurEquipe, boolean max) {
         if (profondeur == PROFONDEUR_MAX || board.estGagnant())
-            return board.calculerValeur(couleurEquipe);
+            return board.evaluer(couleurEquipe);
 
         if (max) {
             double meilleurVal = Integer.MIN_VALUE;
@@ -349,8 +349,13 @@ public class Board {
         return nbPions;
     }
 
-    public double calculerValeur(int couleurEquipe) {
+    public double evaluer(int couleurEquipe) {
         int couleurAdversaire = getCouleurAdverse(couleurEquipe);
+
+        if (estGagnant(couleurEquipe))
+            return 10000 - _profondeur;
+        else if (estGagnant(couleurAdversaire))
+            return -(10000 - _profondeur);
 
         int totalXEquipe = 0;
         int totalYEquipe = 0;
@@ -396,13 +401,47 @@ public class Board {
             
         double poidsMoyenEquipe = poidsTotalEquipe / nbPionsEquipe;
         double poidsMoyenAdversaire = poidsTotalAdversaire / nbPionsAdversaire;
-        
-        if (estGagnant(couleurEquipe))
-            return 10000 - _profondeur;
-        else if (estGagnant(couleurAdversaire))
-            return -(10000 - _profondeur);
 
-        return poidsMoyenEquipe - poidsMoyenAdversaire - calculerIsolement(couleurEquipe) / nbPionsEquipe + calculerIsolement(couleurAdversaire) / nbPionsAdversaire;
+        double isolementEquipe = calculerIsolement(couleurEquipe) / nbPionsEquipe;
+        double isolementAdversaire = calculerIsolement(couleurAdversaire) / nbPionsAdversaire;
+
+        double connectiviteEquipe = calculerConnectivite(couleurEquipe);
+        double connectiviteAdversaire = calculerConnectivite(couleurAdversaire);
+
+        return poidsMoyenEquipe - poidsMoyenAdversaire - isolementEquipe + isolementAdversaire + connectiviteEquipe - connectiviteAdversaire;
+    }
+
+    public double calculerConnectivite(int couleurPions) {
+        double nbConnexions = 0;
+        double nbPions = 0;
+
+        for (int x = 0; x != _board.length; x++) {
+            for (int y = 0; y != _board.length; y++) {
+                if (_board[x][y] == couleurPions) {
+                    nbPions++;
+                }
+            }
+        }
+
+        for (int x = 0; x != _board.length; x++) {
+            for (int y = 0; y != _board.length; y++) {
+                if (_board[x][y] == couleurPions) {
+                    int xDepart = x;
+                    int yDepart = y;
+
+                    for (int x2 = 0; x2 != _board.length; x2++) {
+                        for (int y2 = 0; y2 != _board.length; y2++) {
+                            if (_board[x2][y2] == couleurPions) {
+                                if (atteindrePion(x, y, couleurPions, xDepart, yDepart, nbPions - 1))
+                                    nbConnexions++;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return nbConnexions / (nbPions);
     }
 
     public int calculerIsolement(int couleurEquipe) {

@@ -133,9 +133,9 @@ public class BoardTest {
         Board boardGagnant = new Board(_boardGagnant, null);
 
         // Act
-        double valBoardDepart = boardDepart.calculerValeur(Board.PION_BLANC);
-        double valBoardYolo = boardYolo.calculerValeur(Board.PION_NOIR);
-        double valBoardGagnant = boardGagnant.calculerValeur(Board.PION_BLANC);
+        double valBoardDepart = boardDepart.evaluer(Board.PION_BLANC);
+        double valBoardYolo = boardYolo.evaluer(Board.PION_NOIR);
+        double valBoardGagnant = boardGagnant.evaluer(Board.PION_BLANC);
 
         System.out.println("Valeur blancs board départ : " + valBoardDepart);
         System.out.println("Valeur noirs board yolo : " + valBoardYolo);
