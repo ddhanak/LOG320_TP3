@@ -357,12 +357,12 @@ public class Board {
         else if (estGagnant(couleurAdversaire))
             return -(10000 - _profondeur);
 
-        int totalXEquipe = 0;
-        int totalYEquipe = 0;
-        int totalXAdversaire = 0;
-        int totalYAdversaire = 0;
-        int nbPionsAdversaire = 0;
-        int nbPionsEquipe = 0;
+        double totalXEquipe = 0;
+        double totalYEquipe = 0;
+        double totalXAdversaire = 0;
+        double totalYAdversaire = 0;
+        double nbPionsAdversaire = 0;
+        double nbPionsEquipe = 0;
 
         for (int x = 0; x != _board.length; x++) {
             for (int y = 0; y != _board.length; y++) {
@@ -379,10 +379,10 @@ public class Board {
             }
         }
 
-        int xEquipe = totalXEquipe / nbPionsEquipe;
-        int yEquipe = totalYEquipe / nbPionsEquipe;
-        int xAdversaire = totalXAdversaire / nbPionsAdversaire;
-        int yAdversaire = totalYAdversaire / nbPionsAdversaire;
+        double xEquipe = totalXEquipe / nbPionsEquipe;
+        double yEquipe = totalYEquipe / nbPionsEquipe;
+        double xAdversaire = totalXAdversaire / nbPionsAdversaire;
+        double yAdversaire = totalYAdversaire / nbPionsAdversaire;
 
         double poidsTotalEquipe = 0;
         double poidsTotalAdversaire = 0;
