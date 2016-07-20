@@ -384,23 +384,23 @@ public class Board {
         double xAdversaire = totalXAdversaire / nbPionsAdversaire;
         double yAdversaire = totalYAdversaire / nbPionsAdversaire;
 
-        double poidsTotalEquipe = 0;
-        double poidsTotalAdversaire = 0;
+        double poidsTotalCentralisationEtDispertionEquipe = 0;
+        double poidsTotalCentralisationEtDispertionAdversaire = 0;
 
         for (int x = 0; x != _board.length; x++) {
             for (int y = 0; y != _board.length; y++) {
                 if (_board[x][y] == couleurEquipe) {
-                    poidsTotalEquipe += 1000 - Math.pow(y - yAdversaire, 2) - Math.pow(x - xAdversaire, 2) - Math.pow(y - yEquipe, 2) - Math.pow(x - xEquipe, 2);
+                    poidsTotalCentralisationEtDispertionEquipe += 1000 - Math.pow(y - yAdversaire, 2) - Math.pow(x - xAdversaire, 2) - Math.pow(y - yEquipe, 2) - Math.pow(x - xEquipe, 2);
                 }
                 else if (_board[x][y] == couleurAdversaire) {
-                    poidsTotalAdversaire += 1000 - Math.pow(y - yEquipe, 2) - Math.pow(x - xEquipe, 2)
+                    poidsTotalCentralisationEtDispertionAdversaire += 1000 - Math.pow(y - yEquipe, 2) - Math.pow(x - xEquipe, 2)
                             - Math.pow(y - yAdversaire, 2) - Math.pow(x - xAdversaire, 2);
                 }
             }
         }
             
-        double poidsMoyenEquipe = poidsTotalEquipe / nbPionsEquipe;
-        double poidsMoyenAdversaire = poidsTotalAdversaire / nbPionsAdversaire;
+        double poidsMoyenCentralisationEtDispertionEquipe = poidsTotalCentralisationEtDispertionEquipe / nbPionsEquipe;
+        double poidsMoyenCentralisationEtDispertionAdversaire = poidsTotalCentralisationEtDispertionAdversaire / nbPionsAdversaire;
 
         double isolementEquipe = calculerIsolement(couleurEquipe) / nbPionsEquipe;
         double isolementAdversaire = calculerIsolement(couleurAdversaire) / nbPionsAdversaire;
@@ -408,7 +408,8 @@ public class Board {
         double connectiviteEquipe = calculerConnectivite(couleurEquipe);
         double connectiviteAdversaire = calculerConnectivite(couleurAdversaire);
 
-        return poidsMoyenEquipe - poidsMoyenAdversaire - isolementEquipe + isolementAdversaire + connectiviteEquipe - connectiviteAdversaire;
+        return poidsMoyenCentralisationEtDispertionEquipe - poidsMoyenCentralisationEtDispertionAdversaire
+                - isolementEquipe + isolementAdversaire + connectiviteEquipe - connectiviteAdversaire;
     }
 
     public double calculerConnectivite(int couleurPions) {
