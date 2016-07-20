@@ -60,6 +60,7 @@ public class Main {
                     attendreProchainCoup(prochainCoup);
 
                     if (prochainCoup[0] == null) {
+                        myBoard.arreter();
                         prochainCoup[0] = myBoard.getProchainCoupRapide(couleurEquipe);
                     }
 
@@ -115,6 +116,7 @@ public class Main {
                     attendreProchainCoup(prochainCoup);
 
                     if (prochainCoup[0] == null) {
+                        myBoard.arreter();
                         prochainCoup[0] = myBoard.getProchainCoupRapide(couleurEquipe);
                     }
                     System.out.println("Mon Dernier coup : " + prochainCoup[0]);

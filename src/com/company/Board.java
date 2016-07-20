@@ -46,6 +46,7 @@ public class Board {
         double meilleurVal = Integer.MIN_VALUE;
 
         for (Board enfant : getBoardsEnfants(couleurEquipe, 0)) {
+            if (_doitArreter) return enfant; // pour prévenir un dépassement de temps
             double val = alphaBeta(enfant, 1, Integer.MIN_VALUE, Integer.MAX_VALUE, couleurEquipe, false);
             if (val > meilleurVal) {
                 meilleurVal = val;
@@ -762,6 +763,12 @@ public class Board {
         _board[coup.arrivee.x][coup.arrivee.y] = couleurPion;
         _dernierCoupJoue = coup;
     }
+
+    public void arreter() {
+        _doitArreter = true;
+    }
+
+    public volatile boolean _doitArreter;
 
     private int[][] _board;
 
