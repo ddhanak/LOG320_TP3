@@ -2,6 +2,7 @@ package com.company;
 
 import java.io.*;
 import java.net.Socket;
+import java.util.Timer;
 
 public class Main {
 
@@ -52,17 +53,21 @@ public class Main {
                     Board finalMyBoard = myBoard;
                     int finalCouleurEquipe = couleurEquipe;
                     final Coup[] prochainCoup = new Coup[1];
+                    final int[] i = new int[1];
                     Thread t1 = new Thread(() -> {
-                        prochainCoup[0] = finalMyBoard.getProchainCoup(finalCouleurEquipe, 3);
+                        for (i[0] = 1; ; i[0]++) {
+                            prochainCoup[0] = finalMyBoard.getProchainCoup(finalCouleurEquipe, i[0]);
+                        }
                     });
                     t1.start();
 
-                    attendreProchainCoup(prochainCoup);
-
-                    if (prochainCoup[0] == null) {
-                        t1.stop();
-                        prochainCoup[0] = myBoard.getProchainCoupRapide(couleurEquipe);
+                    try {
+                        Thread.sleep(4800);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
                     }
+                    t1.stop();
+                    System.out.println(i[0]);
 
                     System.out.println("Mon Dernier coup : " + prochainCoup[0]);
                     myBoard.effectuerCoup(prochainCoup[0]);
@@ -108,17 +113,22 @@ public class Main {
                     Board finalMyBoard = myBoard;
                     int finalCouleurEquipe = couleurEquipe;
                     final Coup[] prochainCoup = new Coup[1];
+                    final int[] i = new int[1];
                     Thread t1 = new Thread(() -> {
-                        prochainCoup[0] = finalMyBoard.getProchainCoup(finalCouleurEquipe, 3);
+                        for (i[0] = 1; ; i[0]++) {
+                            prochainCoup[0] = finalMyBoard.getProchainCoup(finalCouleurEquipe, i[0]);
+                        }
                     });
                     t1.start();
 
-                    attendreProchainCoup(prochainCoup);
-
-                    if (prochainCoup[0] == null) {
-                        t1.stop();
-                        prochainCoup[0] = myBoard.getProchainCoupRapide(couleurEquipe);
+                    try {
+                        Thread.sleep(4800);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
                     }
+                    t1.stop();
+                    System.out.println(i[0]);
+
                     System.out.println("Mon Dernier coup : " + prochainCoup[0]);
                     myBoard.effectuerCoup(prochainCoup[0]);
                     move = prochainCoup[0].toString();
