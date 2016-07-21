@@ -147,8 +147,8 @@ public class BoardTest {
         // Arrange
         Board boardDepart = new Board(_boardDepart, null);
 
-        Coup coupBlancBoardDepart = boardDepart.getProchainCoup(Board.PION_BLANC);
-        Coup coupNoirBoardDepart = boardDepart.getProchainCoup(Board.PION_NOIR);
+        Coup coupBlancBoardDepart = boardDepart.getProchainCoup(Board.PION_BLANC, 3);
+        Coup coupNoirBoardDepart = boardDepart.getProchainCoup(Board.PION_NOIR, 3);
 
         System.out.println(coupBlancBoardDepart);
         System.out.println(coupNoirBoardDepart);
@@ -160,7 +160,7 @@ public class BoardTest {
         Board board = new Board(_boardBlancPresqueGagnant, null);
 
         // Act
-        Board boardGagnant = board.getBoardApresProchainCoup(Board.PION_BLANC);
+        Board boardGagnant = board.getBoardApresProchainCoup(Board.PION_BLANC, 3);
         Coup coupGagnant = boardGagnant.getDernierCoupJoue();
         System.out.println("Coup gagnant : " + coupGagnant);
 
