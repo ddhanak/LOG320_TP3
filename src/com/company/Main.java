@@ -38,7 +38,6 @@ public class Main {
                     byte[] aBuffer = new byte[1024];
 
                     int size = input.available();
-                    //System.out.println("size " + size);
                     input.read(aBuffer,0,size);
                     String s = new String(aBuffer).trim();
                     System.out.println(s);
@@ -46,28 +45,14 @@ public class Main {
                     boardValues = s.split(" ");
                     initialiserBoard(board, boardValues);
 
-                    myBoard = new Board(board, null);
+                    myBoard = new Board(board);
                     System.out.println("Nouvelle partie! Vous jouer blanc, entrez votre premier coup : ");
                     String move = null;
-                    //move = console.readLine();
-                    Board finalMyBoard = myBoard;
+                    Board finalMyBoard = myBoard.copier();
                     int finalCouleurEquipe = couleurEquipe;
                     final Coup[] prochainCoup = new Coup[1];
-                    final int[] i = new int[1];
-                    Thread t1 = new Thread(() -> {
-                        for (i[0] = 1; ; i[0]++) {
-                            prochainCoup[0] = finalMyBoard.getProchainCoup(finalCouleurEquipe, i[0]);
-                        }
-                    });
-                    t1.start();
 
-                    try {
-                        Thread.sleep(4800);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                    t1.stop();
-                    System.out.println(i[0]);
+                    obtenirProchainCoup(finalMyBoard, finalCouleurEquipe, prochainCoup);
 
                     System.out.println("Mon Dernier coup : " + prochainCoup[0]);
                     myBoard.effectuerCoup(prochainCoup[0]);
@@ -82,14 +67,13 @@ public class Main {
                     byte[] aBuffer = new byte[1024];
 
                     int size = input.available();
-                    //System.out.println("size " + size);
                     input.read(aBuffer,0,size);
                     String s = new String(aBuffer).trim();
                     System.out.println(s);
                     String[] boardValues;
                     boardValues = s.split(" ");
                     initialiserBoard(board, boardValues);
-                    myBoard = new Board(board, null);
+                    myBoard = new Board(board);
                 }
 
 
@@ -99,35 +83,19 @@ public class Main {
                     byte[] aBuffer = new byte[16];
 
                     int size = input.available();
-                    //System.out.println("size " + size);
                     input.read(aBuffer,0,size);
-
                     String s = new String(aBuffer);
                     s = s.substring(1, 8);
                     System.out.println("Dernier coup : "+ s);
                     System.out.println("Entrez votre coup : ");
                     String move = null;
-                    //move = console.readLine();
                     Coup dernierCoupJoue = new Coup(s);
                     myBoard.effectuerCoup(dernierCoupJoue);
-                    Board finalMyBoard = myBoard;
+                    Board finalMyBoard = myBoard.copier();
                     int finalCouleurEquipe = couleurEquipe;
                     final Coup[] prochainCoup = new Coup[1];
-                    final int[] i = new int[1];
-                    Thread t1 = new Thread(() -> {
-                        for (i[0] = 1; ; i[0]++) {
-                            prochainCoup[0] = finalMyBoard.getProchainCoup(finalCouleurEquipe, i[0]);
-                        }
-                    });
-                    t1.start();
 
-                    try {
-                        Thread.sleep(4800);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                    t1.stop();
-                    System.out.println(i[0]);
+                    obtenirProchainCoup(finalMyBoard, finalCouleurEquipe, prochainCoup);
 
                     System.out.println("Mon Dernier coup : " + prochainCoup[0]);
                     myBoard.effectuerCoup(prochainCoup[0]);
@@ -152,6 +120,24 @@ public class Main {
         }
     }
 
+    private static void obtenirProchainCoup(Board finalMyBoard, int finalCouleurEquipe, Coup[] prochainCoup) {
+        final int[] i = new int[1];
+        Thread t1 = new Thread(() -> {
+            for (i[0] = 1; ; i[0]++) {
+                prochainCoup[0] = finalMyBoard.getProchainCoup(finalCouleurEquipe, i[0]);
+            }
+        });
+        t1.start();
+
+        try {
+            Thread.sleep(4800);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        t1.stop();
+        System.out.println(i[0]);
+    }
+
     private static void initialiserBoard(int[][] board, String[] boardValues) {
         int x=0,y=0;
         for(int i=0; i<boardValues.length;i++){
@@ -163,19 +149,5 @@ public class Main {
             }
         }
     }
-
-    private static void attendreProchainCoup(Coup[] prochainCoup) {
-        try {
-            for (int i = 1; i <= 4; i++) {
-                Thread.sleep(1000);
-                if (prochainCoup[0] != null)
-                    break;
-            }
-
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
-
 
 }
