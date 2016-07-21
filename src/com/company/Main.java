@@ -53,7 +53,7 @@ public class Main {
                     int finalCouleurEquipe = couleurEquipe;
                     final Coup[] prochainCoup = new Coup[1];
                     Thread t1 = new Thread(() -> {
-                        prochainCoup[0] = finalMyBoard.getProchainCoup(finalCouleurEquipe);
+                        prochainCoup[0] = finalMyBoard.getProchainCoup(finalCouleurEquipe, 3);
                     });
                     t1.start();
 
@@ -109,7 +109,7 @@ public class Main {
                     int finalCouleurEquipe = couleurEquipe;
                     final Coup[] prochainCoup = new Coup[1];
                     Thread t1 = new Thread(() -> {
-                        prochainCoup[0] = finalMyBoard.getProchainCoup(finalCouleurEquipe);
+                        prochainCoup[0] = finalMyBoard.getProchainCoup(finalCouleurEquipe, 3);
                     });
                     t1.start();
 

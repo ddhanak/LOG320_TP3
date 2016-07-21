@@ -9,8 +9,6 @@ public class Board {
     public static final int PION_NOIR = 2;
     public static final int PION_BLANC = 4;
 
-    private static final int PROFONDEUR_MAX = 3;
-
     public Board(int[][] board, Coup dernierCoupJoue) {
         _board = board;
         _dernierCoupJoue = dernierCoupJoue;
@@ -22,8 +20,8 @@ public class Board {
         _profondeur = profondeur;
     }
 
-    public Coup getProchainCoup(int couleurEquipe) {
-        return getBoardApresProchainCoup(couleurEquipe).getDernierCoupJoue();
+    public Coup getProchainCoup(int couleurEquipe, int profondeur) {
+        return getBoardApresProchainCoup(couleurEquipe, profondeur).getDernierCoupJoue();
     }
 
     public Coup getProchainCoupRapide(int couleurEquipe) {
@@ -41,12 +39,12 @@ public class Board {
         return meilleurBoard.getDernierCoupJoue();
     }
 
-    public Board getBoardApresProchainCoup(int couleurEquipe) {
+    public Board getBoardApresProchainCoup(int couleurEquipe, int profondeur) {
         Board meilleurBoard = null;
         double meilleurVal = Integer.MIN_VALUE;
 
         for (Board enfant : getBoardsEnfants(couleurEquipe, 0)) {
-            double val = alphaBeta(enfant, 1, Integer.MIN_VALUE, Integer.MAX_VALUE, couleurEquipe, false);
+            double val = alphaBeta(enfant, profondeur - 1, Integer.MIN_VALUE, Integer.MAX_VALUE, couleurEquipe, false);
             if (val > meilleurVal) {
                 meilleurVal = val;
                 meilleurBoard = enfant;
@@ -57,13 +55,13 @@ public class Board {
     }
 
     public double alphaBeta(Board board, int profondeur, double a, double b, int couleurEquipe, boolean max) {
-        if (profondeur == PROFONDEUR_MAX || board.estGagnant())
+        if (profondeur == 0 || board.estGagnant())
             return board.evaluer(couleurEquipe);
 
         if (max) {
             double meilleurVal = Integer.MIN_VALUE;
             for (Board enfant : board.getBoardsEnfants(couleurEquipe, profondeur)) {
-                double val = alphaBeta(enfant, profondeur+1, a, b, couleurEquipe, false);
+                double val = alphaBeta(enfant, profondeur-1, a, b, couleurEquipe, false);
                 if (val > meilleurVal)
                     meilleurVal = val;
                 if (meilleurVal > a)
@@ -76,7 +74,7 @@ public class Board {
         else { // MIN
             double meilleurVal = Integer.MAX_VALUE;
             for (Board enfant : board.getBoardsEnfants(getCouleurAdverse(couleurEquipe), profondeur)) {
-                double val = alphaBeta(enfant, profondeur+1, a, b, couleurEquipe, true);
+                double val = alphaBeta(enfant, profondeur-1, a, b, couleurEquipe, true);
                 if (val < meilleurVal)
                     meilleurVal = val;
                 if (meilleurVal < b)
