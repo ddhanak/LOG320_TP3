@@ -540,51 +540,7 @@ public class Board {
     }
 
     public boolean estGagnant() {
-        int xDepartBlanc = 0;
-        int yDepartBlanc = 0;
-        int nbPionsBlanc = 0;
-        int xDepartNoir = 0;
-        int yDepartNoir = 0;
-        int nbPionsNoir = 0;
-
-        for (int x = 0; x != _board.length; x++) {
-            for (int y = 0; y != _board.length; y++) {
-                if (_board[x][y] == PION_BLANC) {
-                    xDepartBlanc = x;
-                    yDepartBlanc = y;
-                    nbPionsBlanc++;
-                }
-                else if (_board[x][y] == PION_NOIR) {
-                    xDepartNoir = x;
-                    yDepartNoir = y;
-                    nbPionsNoir++;
-                }
-            }
-        }
-
-        boolean estGagnant = true;
-
-        for (int x = 0; x != _board.length; x++)
-            for (int y = 0; y != _board.length; y++)
-                if (estGagnant) {
-                    if (_board[x][y] == PION_BLANC)
-                        if (!atteindrePion(x, y, PION_BLANC, xDepartBlanc, yDepartBlanc, nbPionsBlanc - 1))
-                            estGagnant = false;
-                }
-                else {
-                    break;
-                }
-
-        if (estGagnant)
-            return true;
-
-        for (int x = 0; x != _board.length; x++)
-            for (int y = 0; y != _board.length; y++)
-                if (_board[x][y] == PION_NOIR)
-                    if (!atteindrePion(x, y, PION_NOIR, xDepartNoir, yDepartNoir, nbPionsNoir - 1))
-                        return false;
-
-        return true;
+        return estGagnant(PION_BLANC) || estGagnant(PION_NOIR);
     }
 
     public boolean estGagnant(int couleurPions) {
