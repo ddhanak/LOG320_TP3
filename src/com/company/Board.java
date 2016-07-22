@@ -26,7 +26,6 @@ public class Board {
                 meilleurCoup = coup;
             }
         }
-        System.out.println(meilleurVal);
         return meilleurCoup;
     }
 
