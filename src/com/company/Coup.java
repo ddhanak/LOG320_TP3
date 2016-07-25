@@ -14,6 +14,8 @@ public class Coup {
 
     public Position depart;
     public Position arrivee;
+    public boolean aMangeUnPion;
+    public int couleurPionMange;
 
     @Override
     public String toString() {

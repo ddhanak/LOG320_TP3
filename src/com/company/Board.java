@@ -9,118 +9,64 @@ public class Board {
     public static final int PION_NOIR = 2;
     public static final int PION_BLANC = 4;
 
-    public Board(int[][] board, Coup dernierCoupJoue) {
+    public Board(int[][] board) {
         _board = board;
-        _dernierCoupJoue = dernierCoupJoue;
-    }
-
-    public Board(int[][] board, Coup dernierCoupJoue, int profondeur) {
-        _board = board;
-        _dernierCoupJoue = dernierCoupJoue;
-        _profondeur = profondeur;
     }
 
     public Coup getProchainCoup(int couleurEquipe, int profondeur) {
-        return getBoardApresProchainCoup(couleurEquipe, profondeur).getDernierCoupJoue();
-    }
-
-    public Coup getProchainCoupRapide(int couleurEquipe) {
-        Board meilleurBoard = null;
+        Coup meilleurCoup = null;
         double meilleurVal = Integer.MIN_VALUE;
 
-        for (Board enfant : getBoardsEnfants(couleurEquipe, 0)) {
-            double val = enfant.evaluer(couleurEquipe);
+        for (Coup coup : getCoupsPossibles(couleurEquipe)) {
+            effectuerCoup(coup);
+            double val = alphaBeta(profondeur - 1, Integer.MIN_VALUE, Integer.MAX_VALUE, couleurEquipe, false);
+            annulerCoup(coup);
             if (val > meilleurVal) {
                 meilleurVal = val;
-                meilleurBoard = enfant;
+                meilleurCoup = coup;
             }
         }
-
-        return meilleurBoard.getDernierCoupJoue();
+        return meilleurCoup;
     }
 
-    public Board getBoardApresProchainCoup(int couleurEquipe, int profondeur) {
-        Board meilleurBoard = null;
-        double meilleurVal = Integer.MIN_VALUE;
-
-        for (Board enfant : getBoardsEnfants(couleurEquipe, 0)) {
-            double val = alphaBeta(enfant, profondeur - 1, Integer.MIN_VALUE, Integer.MAX_VALUE, couleurEquipe, false);
-            if (val > meilleurVal) {
-                meilleurVal = val;
-                meilleurBoard = enfant;
-            }
-        }
-
-        return meilleurBoard;
-    }
-
-    public double alphaBeta(Board board, int profondeur, double a, double b, int couleurEquipe, boolean max) {
-        if (profondeur == 0 || board.estGagnant())
-            return board.evaluer(couleurEquipe);
+    public double alphaBeta(int profondeur, double a, double b, int couleurEquipe, boolean max) {
+        if (profondeur == 0 || estGagnant())
+            return evaluer(couleurEquipe, profondeur);
 
         if (max) {
-            double meilleurVal = Integer.MIN_VALUE;
-            for (Board enfant : board.getBoardsEnfants(couleurEquipe, profondeur)) {
-                double val = alphaBeta(enfant, profondeur-1, a, b, couleurEquipe, false);
-                if (val > meilleurVal)
-                    meilleurVal = val;
-                if (meilleurVal > a)
-                    a = meilleurVal;
+            double meilleureVal = Integer.MIN_VALUE;
+            for (Coup coup : getCoupsPossibles(couleurEquipe)) {
+                effectuerCoup(coup);
+                double val = alphaBeta(profondeur-1, a, b, couleurEquipe, false);
+                annulerCoup(coup);
+                if (val > meilleureVal)
+                    meilleureVal = val;
+                if (meilleureVal > a)
+                    a = meilleureVal;
                 if (b <= a)
                     break;
             }
-            return meilleurVal;
+            return meilleureVal;
         }
         else { // MIN
-            double meilleurVal = Integer.MAX_VALUE;
-            for (Board enfant : board.getBoardsEnfants(getCouleurAdverse(couleurEquipe), profondeur)) {
-                double val = alphaBeta(enfant, profondeur-1, a, b, couleurEquipe, true);
-                if (val < meilleurVal)
-                    meilleurVal = val;
-                if (meilleurVal < b)
-                    b = meilleurVal;
+            double meilleureVal = Integer.MAX_VALUE;
+            for (Coup coup : getCoupsPossibles(getCouleurAdverse(couleurEquipe))) {
+                effectuerCoup(coup);
+                double val = alphaBeta(profondeur-1, a, b, couleurEquipe, true);
+                annulerCoup(coup);
+                if (val < meilleureVal)
+                    meilleureVal = val;
+                if (meilleureVal < b)
+                    b = meilleureVal;
                 if (b <= a)
                     break;
             }
-            return meilleurVal;
+            return meilleureVal;
         }
     }
 
     public static int getCouleurAdverse(int couleurEquipe) {
         return (couleurEquipe == PION_BLANC) ? PION_NOIR : PION_BLANC;
-    }
-
-    /**
-     * Optimisation possible en calculant une seule fois le nombre de pions par ligne/colonnes
-     * @param couleurPions
-     * @return
-     */
-    public List<Board> getBoardsEnfants(int couleurPions, int profondeur) {
-        List<Coup> coupsPossibles = getCoupsPossibles(couleurPions);
-        List<Board> boardsEnfants = new ArrayList<>();
-
-        for (Coup coup : coupsPossibles) {
-            int[][] boardEnfant = new int[8][8];
-            int xDepart = coup.depart.x;
-            int yDepart = coup.depart.y;
-            int xArrivee = coup.arrivee.x;
-            int yArrivee = coup.arrivee.y;
-
-            for (int x = 0; x < _board.length; x++) {
-                for (int y = 0; y < _board.length; y++) {
-                    if (x == xDepart && y == yDepart)
-                        boardEnfant[x][y] = CASE_VIDE;
-                    else if (x == xArrivee && y == yArrivee)
-                        boardEnfant[x][y] = couleurPions;
-                    else
-                        boardEnfant[x][y] = _board[x][y];
-                }
-            }
-
-            boardsEnfants.add(new Board(boardEnfant, coup, profondeur));
-        }
-
-        return boardsEnfants;
     }
 
     /**
@@ -347,20 +293,20 @@ public class Board {
         return nbPions;
     }
 
-    public double evaluer(int couleurEquipe) {
+    public double evaluer(int couleurEquipe, int profondeur) {
         int couleurAdversaire = getCouleurAdverse(couleurEquipe);
 
         if (estGagnant(couleurEquipe))
-            return 10000 - _profondeur;
+            return 100000 + profondeur;
         else if (estGagnant(couleurAdversaire))
-            return -(10000 - _profondeur);
+            return -(100000 + profondeur);
 
         double totalXEquipe = 0;
         double totalYEquipe = 0;
         double totalXAdversaire = 0;
         double totalYAdversaire = 0;
-        double nbPionsAdversaire = 0;
-        double nbPionsEquipe = 0;
+        int nbPionsAdversaire = 0;
+        int nbPionsEquipe = 0;
 
         for (int x = 0; x != _board.length; x++) {
             for (int y = 0; y != _board.length; y++) {
@@ -388,39 +334,32 @@ public class Board {
         for (int x = 0; x != _board.length; x++) {
             for (int y = 0; y != _board.length; y++) {
                 if (_board[x][y] == couleurEquipe) {
-                    poidsTotalCentralisationEtDispertionEquipe += 1000 - Math.pow(y - yAdversaire, 2) - Math.pow(x - xAdversaire, 2) - Math.pow(y - yEquipe, 2) - Math.pow(x - xEquipe, 2);
+                    poidsTotalCentralisationEtDispertionEquipe += Math.pow(y - yAdversaire, 2) + Math.pow(x - xAdversaire, 2) + Math.pow(y - yEquipe, 2) + Math.pow(x - xEquipe, 2);
                 }
                 else if (_board[x][y] == couleurAdversaire) {
-                    poidsTotalCentralisationEtDispertionAdversaire += 1000 - Math.pow(y - yEquipe, 2) - Math.pow(x - xEquipe, 2)
-                            - Math.pow(y - yAdversaire, 2) - Math.pow(x - xAdversaire, 2);
+                    poidsTotalCentralisationEtDispertionAdversaire += Math.pow(y - yEquipe, 2) + Math.pow(x - xEquipe, 2)
+                            + Math.pow(y - yAdversaire, 2) + Math.pow(x - xAdversaire, 2);
                 }
             }
         }
-            
+
         double poidsMoyenCentralisationEtDispertionEquipe = poidsTotalCentralisationEtDispertionEquipe / nbPionsEquipe;
         double poidsMoyenCentralisationEtDispertionAdversaire = poidsTotalCentralisationEtDispertionAdversaire / nbPionsAdversaire;
 
         double isolementEquipe = calculerIsolement(couleurEquipe) / nbPionsEquipe;
         double isolementAdversaire = calculerIsolement(couleurAdversaire) / nbPionsAdversaire;
 
-        double connectiviteEquipe = calculerConnectivite(couleurEquipe);
-        double connectiviteAdversaire = calculerConnectivite(couleurAdversaire);
+        double connectiviteEquipe = calculerConnectivite(couleurEquipe, nbPionsEquipe);
+        double connectiviteAdversaire = calculerConnectivite(couleurAdversaire, nbPionsAdversaire);
 
-        return poidsMoyenCentralisationEtDispertionEquipe - poidsMoyenCentralisationEtDispertionAdversaire
-                - isolementEquipe + isolementAdversaire + connectiviteEquipe - connectiviteAdversaire;
+        double valeurEquipe = 10000 + connectiviteEquipe - poidsMoyenCentralisationEtDispertionEquipe - isolementEquipe;
+        double valeurAdversaire = 10000 + connectiviteAdversaire - poidsMoyenCentralisationEtDispertionAdversaire - isolementAdversaire;
+
+        return valeurEquipe - valeurAdversaire;
     }
 
-    public double calculerConnectivite(int couleurPions) {
+    public double calculerConnectivite(int couleurPions, int nbPions) {
         double nbConnexions = 0;
-        double nbPions = 0;
-
-        for (int x = 0; x != _board.length; x++) {
-            for (int y = 0; y != _board.length; y++) {
-                if (_board[x][y] == couleurPions) {
-                    nbPions++;
-                }
-            }
-        }
 
         for (int x = 0; x != _board.length; x++) {
             for (int y = 0; y != _board.length; y++) {
@@ -452,7 +391,6 @@ public class Board {
                 }
             }
         }
-
         return isolement;
     }
 
@@ -601,51 +539,7 @@ public class Board {
     }
 
     public boolean estGagnant() {
-        int xDepartBlanc = 0;
-        int yDepartBlanc = 0;
-        int nbPionsBlanc = 0;
-        int xDepartNoir = 0;
-        int yDepartNoir = 0;
-        int nbPionsNoir = 0;
-
-        for (int x = 0; x != _board.length; x++) {
-            for (int y = 0; y != _board.length; y++) {
-                if (_board[x][y] == PION_BLANC) {
-                    xDepartBlanc = x;
-                    yDepartBlanc = y;
-                    nbPionsBlanc++;
-                }
-                else if (_board[x][y] == PION_NOIR) {
-                    xDepartNoir = x;
-                    yDepartNoir = y;
-                    nbPionsNoir++;
-                }
-            }
-        }
-
-        boolean estGagnant = true;
-
-        for (int x = 0; x != _board.length; x++)
-            for (int y = 0; y != _board.length; y++)
-                if (estGagnant) {
-                    if (_board[x][y] == PION_BLANC)
-                        if (!atteindrePion(x, y, PION_BLANC, xDepartBlanc, yDepartBlanc, nbPionsBlanc - 1))
-                            estGagnant = false;
-                }
-                else {
-                    break;
-                }
-
-        if (estGagnant)
-            return true;
-
-        for (int x = 0; x != _board.length; x++)
-            for (int y = 0; y != _board.length; y++)
-                if (_board[x][y] == PION_NOIR)
-                    if (!atteindrePion(x, y, PION_NOIR, xDepartNoir, yDepartNoir, nbPionsNoir - 1))
-                        return false;
-
-        return true;
+        return estGagnant(PION_BLANC) || estGagnant(PION_NOIR);
     }
 
     public boolean estGagnant(int couleurPions) {
@@ -717,53 +611,38 @@ public class Board {
         return false;
     }
 
-    public boolean pionEstIsole(int x, int y) {
-        int couleurPion = _board[x][y];
-
-        if (couleurPion == CASE_VIDE)
-            return false;
-
-        if (y + 1 < _board.length && _board[x][y + 1] == couleurPion)
-            return false;
-
-        if (x + 1 < _board.length && _board[x + 1][y] == couleurPion)
-            return false;
-
-        if (y - 1 >= 0 && _board[x][y - 1] == couleurPion)
-            return false;
-
-        if (x - 1 >= 0 && _board[x - 1][y] == couleurPion)
-            return false;
-
-        if (x + 1 < _board.length && y + 1 < _board.length && _board[x + 1][y + 1] == couleurPion)
-            return false;
-
-        if (x + 1 < _board.length && y - 1 >= 0 && _board[x + 1][y - 1] == couleurPion)
-            return false;
-
-        if (x - 1 >= 0 && y + 1 < _board.length && _board[x - 1][y + 1] == couleurPion)
-            return false;
-
-        if (x - 1 >= 0 && y - 1 >= 0 && _board[x - 1][y - 1] == couleurPion)
-            return false;
-
-        return true;
-    }
-
-    public Coup getDernierCoupJoue() {
-        return _dernierCoupJoue;
-    }
-
     public void effectuerCoup(Coup coup) {
         int couleurPion = _board[coup.depart.x][coup.depart.y];
         _board[coup.depart.x][coup.depart.y] = CASE_VIDE;
+        int caseArrivee = _board[coup.arrivee.x][coup.arrivee.y];
+        if (caseArrivee != CASE_VIDE) {
+            coup.aMangeUnPion = true;
+            coup.couleurPionMange = caseArrivee;
+        }
         _board[coup.arrivee.x][coup.arrivee.y] = couleurPion;
-        _dernierCoupJoue = coup;
+    }
+
+    public void annulerCoup(Coup coup) {
+        _board[coup.depart.x][coup.depart.y] = _board[coup.arrivee.x][coup.arrivee.y];
+        if (coup.aMangeUnPion)
+            _board[coup.arrivee.x][coup.arrivee.y] = coup.couleurPionMange;
+        else
+            _board[coup.arrivee.x][coup.arrivee.y] = CASE_VIDE;
+    }
+
+    public int[][] getBoard() {
+        return _board;
+    }
+
+    public Board copier() {
+        int[][] nouveauBoard = new int[8][8];
+
+        for (int x = 0; x < nouveauBoard.length; x++)
+            for (int y = 0; y < nouveauBoard.length; y++)
+                nouveauBoard[x][y] = this._board[x][y];
+
+        return new Board(nouveauBoard);
     }
 
     private int[][] _board;
-
-    private int _profondeur = 1;
-
-    private Coup _dernierCoupJoue;
 }
