@@ -334,11 +334,11 @@ public class Board {
         for (int x = 0; x != _board.length; x++) {
             for (int y = 0; y != _board.length; y++) {
                 if (_board[x][y] == couleurEquipe) {
-                    poidsTotalCentralisationEtDispertionEquipe += Math.pow(y - yAdversaire, 2) + Math.pow(x - xAdversaire, 2) + Math.pow(y - yEquipe, 2) + Math.pow(x - xEquipe, 2);
+                    poidsTotalCentralisationEtDispertionEquipe += Math.sqrt(Math.pow(y - yAdversaire, 2) + Math.pow(x - xAdversaire, 2)) + Math.sqrt(Math.pow(y - yEquipe, 2) + Math.pow(x - xEquipe, 2));
                 }
                 else if (_board[x][y] == couleurAdversaire) {
-                    poidsTotalCentralisationEtDispertionAdversaire += Math.pow(y - yEquipe, 2) + Math.pow(x - xEquipe, 2)
-                            + Math.pow(y - yAdversaire, 2) + Math.pow(x - xAdversaire, 2);
+                    poidsTotalCentralisationEtDispertionAdversaire += Math.sqrt(Math.pow(y - yEquipe, 2) + Math.pow(x - xEquipe, 2))
+                            + Math.sqrt(Math.pow(y - yAdversaire, 2) + Math.pow(x - xAdversaire, 2));
                 }
             }
         }
