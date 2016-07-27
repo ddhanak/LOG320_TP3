@@ -130,7 +130,7 @@ public class Main {
         t1.start();
 
         try {
-            Thread.sleep(4800);
+            Thread.sleep(4700);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
